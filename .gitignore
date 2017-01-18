@@ -1,0 +1,9 @@
+# User-specific stuff:
+.idea/workspace.xml
+.idea/tasks.xml
+
+# database files
+wombag.sqlite
+
+# mitmproxy flows
+*.flow
