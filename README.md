@@ -1,30 +1,30 @@
-WomBag
+WombaG
 ======
 
-**WomBag** (c) 2017 by [SwordLord - the coding crew](http://www.swordlord.com/)
+**WombaG** (c) 2017 by [SwordLord - the coding crew](https://www.swordlord.com/)
 
 ## Introduction ##
 
-**WomBag** is a lightweight read it later service based on Node.js, using the Wallabag API.
+**WombaG** is a lightweight read it later service based on Node.js, using the [Wallabag API](https://v2.wallabag.org/api/doc).
 
-_This is still work in progress! Things crash and burn on a regular basis_
+_This is still work in progress! Expect things to crash and burn on a regular basis_
 
-Said that, the current version can save and retrieve entries. Rest to follow
+Said that, the current version can save and retrieve entries, does update starred and archived flag and deletes whatever you ask to be deleted. Rest to follow...
 
-If you are looking for a lightweight service to store and manage websites and links in, **WomBag** might be for you:
+If you are looking for a lightweight service to store and manage websites and links in, **WombaG** might be for you:
 
-- serving (some parts of the) Wallabag v2 API.
+- serving parts of the Wallabag v2 API.
 - based on Node.js.
 
 ## Status ##
 
-**WomBag** is still in development and should be handled as such:
+**WombaG** is still in development and should be approached as such:
 
-- the API is not 100% supported yet.
-- there is no such thing as authentication (run it in your own, trusted networks only).
-- not having a web UI for the time coming (but never say never).
+- the API is only about 50% supported for now (put, get, delete, patch Entries. No such thing as Attributes and Tags yet. But we are working on it).
+- there is no authentication yet (run it in your own, trusted networks with a single user only).
+- **WombaG** will not have a web UI for a while (isn't planned, but never say never).
 
-We test the current version with the iOS App. So YMMV.
+We test the **WombaG** with the iOS App. So YMMV.
 
 ## Installation ##
 
@@ -47,9 +47,9 @@ and then run:
     brew install node
     brew install npm
 
-### Installation of **WomBag** ###
+### Installation of **WombaG** ###
 
-If you want to run **WomBag** under a specific user (node), do this:
+If you want to run **WombaG** under a specific user (node), do this:
 
     sudo adduser node
     su node
@@ -57,7 +57,7 @@ If you want to run **WomBag** under a specific user (node), do this:
     mkdir wombag
     cd wombag
 
-Go into the directory where you want to run your copy of **WomBag** and get the latest and greatest:
+Go into the directory where you want to run your copy of **WombaG** and get the latest and greatest:
 
     cd /home/node/wombag
     git clone https://github.com/LordEidi/wombag.git
@@ -66,11 +66,11 @@ And then with the magic of npm get the required libraries
 
     npm install
 
-If everything worked according to plan, you should now have a new installation of the latest **WomBag**.
+If everything worked according to plan, you should now have a new installation of the latest **WombaG**.
 
-### Use supervisord to run **WomBag** as a service ###
+### Use supervisord to run **WombaG** as a service ###
 
-Now we want to make sure that **WomBag** runs forever. First install the required software:
+Now we want to make sure that **WombaG** runs forever. First install the required software:
 
     sudo apt-get install supervisor
 
@@ -82,7 +82,7 @@ Make sure you change the configuration to your local setup.
 
 ### How to set up transport security ###
 
-Since **WomBag** does not bring it's own crypto, you may need to install a TLS server in front of **WomBag**. You can do so
+Since **WombaG** does not bring it's own crypto, you may need to install a TLS server in front of **WombaG**. You can do so
 with nginx, which is a lightweight http server and proxy.
 
 First prepare your /etc/apt/sources.list file (or just install the standard Debian package, your choice):
@@ -96,7 +96,7 @@ Update apt-cache and install nginx to your system.
     sudo apt-get install nginx
 
 Now configure a proxy configuration so that your instance of nginx will serve / prox the content of / for the
-**WomBag** server. To do so, you will need a configuration along this example:
+**WombaG** server. To do so, you will need a configuration along this example:
 
     server {
         listen   443;
@@ -140,24 +140,21 @@ Please check this site for updates on what TLS settings currently make sense:
 
 [https://mozilla.github.io/server-side-tls/ssl-config-generator](https://mozilla.github.io/server-side-tls/ssl-config-generator)
 
-Now run or reset your nginx and start your instance of **WomBag**.
+Now run or reset your nginx and start your instance of **WombaG**.
 
-Thats it, your instance of **WomBag** should run now. All logs are sent to stdout for now. Have a look at */libs/log.js* if
-you want to change the options.
+Thats it, your instance of **WombaG** should run now. All logs are sent to stdout for now. Have a look at */libs/log.js* if you want to change the options.
 
 ## Configuration ##
 
-All parameters which can be configured right now are in the file *config.js*. There are not much parameters yet, indeed.
-But **WomBag** is not ready production anyway. And you are welcome to help out in adding parameters and configuration
-options.
+All parameters which can be configured right now are in the file *config.js*. There are not that many parameters yet, indeed.
 
 ## How to run ##
 
-Point your Wallabag client to the root of **WomBag**.
+Point your Wallabag client to the root of **WombaG**. Use any credential you wish, every user gets logged in. Please stay save, install **WombaG** only in a trusted environment. At least until we include authentication mechanisms.
 
 ## Contribution ##
 
-If you know JavaScript and would like to help out, send us a note. There is still much work to be done on WomBag.
+If you know JavaScript and would like to help out, send us a note. There is still much work to be done on **WombaG**.
 
 ## Dependencies ##
 
@@ -166,4 +163,4 @@ For now, have a look at the package.json file.
 
 ## License ##
 
-**WomBag** is published under the GNU General Public Licence version 3. See the LICENCE file for details.
+**WombaG** is published under the GNU General Public Licence version 3. See the LICENCE file for details.
