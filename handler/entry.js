@@ -22,7 +22,8 @@ module.exports = {
     put: put,
     getQuery: getQuery,
     getOne: getOne,
-    delete: del
+    delete: del,
+    patch: patch
 };
 
 /**
@@ -45,8 +46,8 @@ function formatEntry(e)
     entry += "    \"created_at\": \"" + moment(e.createdAt).format() + "\",";
     entry += "    \"domain_name\": \"" + e.domain + "\",";
     entry += "    \"id\": " + e.id + ",";
-    entry += "    \"is_archived\": 0,";
-    entry += "    \"is_starred\": 0,";
+    entry += "    \"is_archived\": " + (e.archived ? "1" : "0") + ",";
+    entry += "    \"is_starred\": " + (e.starred ? "1" : "0") + ",";
     entry += "    \"language\": \"en\",";
     entry += "    \"mimetype\": \"text/html\",";
     //entry += "    \"preview_picture\": \"http_to_pic\",";
@@ -177,11 +178,48 @@ function put(c)
 
 /**
  * Clients requests entry to be deleted
- * @param comm
+ * @param {comm} c
+ * @param {ENTRY} e
+ * @param {query} q
  */
-function del(comm)
+function del(c, entryId, q)
 {
+    log.debug("entry.delete called");
 
+    c.setHeader("Content-Type", "application/json");
+    c.setHeader("Server", "WomBag");
+    c.setResponseCode(200);
+
+    ENTRY.find({ where: {id: entryId} }).then(function(entry)
+        {
+            if(entry === null)
+            {
+                log.warn('err: could not find entry');
+            }
+            else
+            {
+                entry.destroy().then(function()
+                {
+                    log.debug('entry deleted');
+                })
+            }
+
+            c.flushResponse();
+
+        }).catch(function (err) {
+
+            log.error("delete failed: " + err.detail);
+
+            if(err.original != null && err.original != undefined)
+            {
+                log.error("detail: " + err.original.message + " - " + err.original.sql);
+            }
+
+            c.setResponseCode(500);
+            c.appendResBody("Delete");
+            c.flushResponse();
+            return;
+        });
 }
 
 /**
@@ -191,5 +229,59 @@ function del(comm)
 function getOne(c)
 {
 
+}
+
+/**
+ * Changes one entry
+ * @param c
+ */
+function patch(c, entryId, query)
+{
+    log.debug("entry.patch called");
+
+    c.setHeader("Content-Type", "application/json");
+    c.setHeader("Server", "WomBag");
+    c.setResponseCode(200);
+
+    ENTRY.find({ where: {id: entryId} }).then(function(entry)
+    {
+        if(entry === null)
+        {
+            log.warn('err: could not find entry');
+        }
+        else
+        {
+            var post = qs.parse(c.reqBody);
+
+            if(post.starred !== undefined)
+            {
+                entry.starred = post.starred;
+            }
+            if(post.archive !== undefined)
+            {
+                entry.archived = post.archive;
+            }
+            entry.save().then(function()
+            {
+                log.debug('entry patched');
+            })
+        }
+
+        c.flushResponse();
+
+    }).catch(function (err) {
+
+        log.error("patch failed: " + err.detail);
+
+        if(err.original != null && err.original != undefined)
+        {
+            log.error("detail: " + err.original.message + " - " + err.original.sql);
+        }
+
+        c.setResponseCode(500);
+        c.appendResBody("Patch");
+        c.flushResponse();
+        return;
+    });
 }
 //EOF

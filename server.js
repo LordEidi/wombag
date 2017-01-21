@@ -116,29 +116,27 @@ function onCreateOrRetrieveEntries(c, query)
     }
 
 }
-function onCheckEntryExistence(c)
+function onDeleteGetSingleChangeEntry(c, entry, format, query)
 {
-    c.res.writeHead(200);
-    c.res.write("Ping");
-    c.res.end();
-}
-function onDeleteEntry(c)
-{
-    c.res.writeHead(200);
-    c.res.write("Ping");
-    c.res.end();
-}
-function onGetSingleEntry(c)
-{
-    c.res.writeHead(200);
-    c.res.write("Ping");
-    c.res.end();
-}
-function onChangeEntry(c)
-{
-    c.res.writeHead(200);
-    c.res.write("Ping");
-    c.res.end();
+    switch(c.req.method)
+    {
+        case "DELETE":
+            log.info("delete entry");
+            log.debug(c.reqBody);
+            hE.delete(c, entry, query);
+            break;
+        case "PATCH":
+            log.info("patch entry");
+            log.debug(c.reqBody);
+            hE.patch(c, entry, query);
+            break;
+        default:
+            log.error("method not supported");
+            c.setResponseCode(500);
+            c.appendResBody("Ping");
+            c.flushResponse();
+            break;
+    }
 }
 function onGetSingleEntryFormatted(c)
 {
@@ -227,10 +225,7 @@ crossroads.addRoute('/api/annotations/{annotation}.{format}{?query}', onUpdateAn
 crossroads.addRoute('/api/annotations/{annotation_id}.{format}{?query}', onRetrieveAnnotation); // GET
 crossroads.addRoute('/api/annotations/{entry}.{_format}{?query}', onCreateNewAnnotation); // POST
 crossroads.addRoute('/api/entries/:?query:', onCreateOrRetrieveEntries); // POST or GET
-crossroads.addRoute('/api/entries/exists.{_format}{?query}', onCheckEntryExistence); // GET
-crossroads.addRoute('/api/entries/{entry}.{_format}{?query}', onDeleteEntry); // DELETE
-crossroads.addRoute('/api/entries/{entry}:._format::?query:', onGetSingleEntry); // GET
-crossroads.addRoute('/api/entries/{entry}.{_format}{?query}', onChangeEntry); // PATCH
+crossroads.addRoute('/api/entries/{entry}:format::?query:', onDeleteGetSingleChangeEntry); // DELETE or GET or PATCH
 crossroads.addRoute('/api/entries/{entry}/export.{_format}{?query}', onGetSingleEntryFormatted); // GET
 crossroads.addRoute('/api/entries/{entry}/reload.{_format}{?query}', onReloadEntry); // PATCH
 crossroads.addRoute('/api/entries/{entry}/tags.{_format}{?query}', onRetrieveTagsForEntry); // GET
@@ -250,7 +245,7 @@ crossroads.bypassed.add(onBypass);
 // start the server and process requests
 var server = http.createServer(function (req, res)
 {
-    log.debug("Method: " + req.method + ", URL: " + req.url);
+    log.debug("Method: " + req.method + ", URL: " + req.url + ", Query: " + req.query);
 
     // will contain the whole body submitted
 	var reqBody = "";
