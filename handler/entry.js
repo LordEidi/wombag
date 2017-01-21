@@ -76,16 +76,24 @@ function getQuery(c, q)
 
     c.setHeader("Content-Type", "application/json");
     c.setResponseCode(200);
+    
+    log.debug(JSON.stringify(q));
 
+    var offset = (q.perPage * q.page) - q.perPage;
     ENTRY.findAndCountAll(
-
+        {
+            limit: q.perPage,
+            offset: offset
+        }
     ).then(function(result)
     {
         c.appendResBody("{");
         c.appendResBody("    \"_embedded\": {");
         c.appendResBody("        \"items\": [ ");
 
-        for (var j=0; j < result.count; ++j) {
+        // we dont use result.count == total row number
+        // but result.rows.length for this is the current page size
+        for (var j=0; j < result.rows.length; ++j) {
 
             if(j > 0)
             {
@@ -144,6 +152,8 @@ function put(c)
             ra(u.href, function(err, art, options, resp){
                 if(err){
                     log.error(err);
+                    c.setResponseCode(500);
+                    c.flushResponse();
                 }
                 else {
                     entry.title = art.title;
@@ -152,13 +162,13 @@ function put(c)
                     entry.save().then(function()
                     {
                         log.info('entry ' + entry.pkey + 'updated with title and content');
+
+                        c.setResponseCode(200);
+                        c.appendResBody(formatEntry(entry));
+                        c.flushResponse();
                     });
                 }
             });
-
-            c.setResponseCode(200);
-            c.appendResBody("Put");
-            c.flushResponse();
 
         }).catch(function (err) {
 
@@ -241,13 +251,15 @@ function patch(c, entryId, query)
 
     c.setHeader("Content-Type", "application/json");
     c.setHeader("Server", "WomBag");
-    c.setResponseCode(200);
 
     ENTRY.find({ where: {id: entryId} }).then(function(entry)
     {
         if(entry === null)
         {
             log.warn('err: could not find entry');
+
+            c.setResponseCode(500);
+            c.flushResponse();
         }
         else
         {
@@ -255,19 +267,21 @@ function patch(c, entryId, query)
 
             if(post.starred !== undefined)
             {
-                entry.starred = post.starred;
+                entry.starred = !!parseInt(post.starred);
             }
             if(post.archive !== undefined)
             {
-                entry.archived = post.archive;
+                entry.archived = !!parseInt(post.archive);
             }
             entry.save().then(function()
             {
                 log.debug('entry patched');
+
+                c.setResponseCode(200);
+                c.appendResBody(formatEntry(entry));
+                c.flushResponse();
             })
         }
-
-        c.flushResponse();
 
     }).catch(function (err) {
 
