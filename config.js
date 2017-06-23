@@ -47,7 +47,7 @@ var config =
     db_uid: 'uid',
     db_pwd: 'pwd',
     db_dialect: 'sqlite',
-    db_logging: true,
+    db_logging: false,
     db_storage: 'wombag.sqlite3'
 };
 

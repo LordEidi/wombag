@@ -257,6 +257,10 @@ var server = http.createServer(function (req, res)
 
     req.on('end',function()
     {
+        // headers only used sometimes
+        var access_token_header = req.headers['access_token'];
+        //var access_token_url = req.query['access_token'] ? req.query['access_token'] : '';
+
         var c = new comm(req, res, reqBody);
 
         var sUrl = url.parse(req.url).href;

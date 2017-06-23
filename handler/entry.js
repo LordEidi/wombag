@@ -79,10 +79,25 @@ function getQuery(c, q)
     
     log.debug(JSON.stringify(q));
 
-    var offset = (q.perPage * q.page) - q.perPage;
+    var page = 1;
+    var offset = 0;
+    var pageSize = 30;
+
+    if(q.hasOwnProperty('page'))
+    {
+        page = q.page;
+    }
+
+    if(q.hasOwnProperty('perPage'))
+    {
+        pageSize = q.perPage;
+    }
+
+    offset = (pageSize * page) - pageSize;
+
     ENTRY.findAndCountAll(
         {
-            limit: q.perPage,
+            limit: pageSize,
             offset: offset
         }
     ).then(function(result)
