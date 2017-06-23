@@ -163,4 +163,4 @@ For now, have a look at the package.json file.
 
 ## License ##
 
-**WombaG** is published under the GNU General Public Licence version 3. See the LICENCE file for details.
+**WombaG** is published under the GNU Affero General Public Licence version 3. See the LICENCE file for details.
