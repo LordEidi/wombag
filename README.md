@@ -1,37 +1,42 @@
 Wombag
 ======
 
+![Wombag](https://raw.githubusercontent.com/LordEidi/wombag/master/wombag_logo.png)
+
 **Wombag** (c) 2017 by [SwordLord - the coding crew](https://www.swordlord.com/)
 
 ## Introduction ##
 
-**Wombag** is a lightweight read it later service, using the [Wallabag API](https://v2.wallabag.org/api/doc).
+**Wombag** is a lightweight, self-hostable read it later service, supporting the [Wallabag API](https://v2.wallabag.org/api/doc).
 
-_This is still work in progress! Expect things to crash and burn on a regular basis_
-
-Said that, the current version can save and retrieve entries, does update starred and archived flag and deletes whatever you ask to be deleted. Rest to follow...
+_This is still work in progress! Expect things to crash and burn on a regular basis. Said that, the current version can save and retrieve entries, updates starred and archived flags and deletes whatever you ask to be deleted. Rest to follow..._
 
 If you are looking for a lightweight service to store and manage websites and links in, then **Wombag** might be for you:
 
-- supporting the core functionality of the Wallabag v2 API. So you can use all those Wallabag Clients with **Wombag**
-- no need for some scripting engine, just drop the wombagd binary on your host, make sure the configuration is correct and run it.
+- **Wombag** supports the core functionality of the _Wallabag v2 API_. So you can use your preferred Wallabag Apps and Clients with **Wombag**
+- **Wombag** is not based on a scripting engine but is compiled into a _native binary_ for your platform. This makes **Wombag** _very lightweight_.
+- **Wombag** makes use of [Gorm](http://jinzhu.me/gorm/) to store the data in a database. We use SQLite3 as our database of choice. But you may use PostgreSQL, MS SQL Server or MySQL, if you prefer. 
+- **Wombag** currently does not have its own web frontend. But there is the wombagcli command line interface to configure users and manage the data.
+
 
 ## Status ##
 
-**Wombag** is still in development and should be approached as such:
+**Wombag** is still under development and should be approached as such:
 
-- the API is only about 70% supported for now (put, get, delete, patch Entries. No such thing as Attributes and Tags yet. But we are working on it).
-- there is no authentication yet (run it in your own, trusted networks with a single user only).
-- **Wombag** will not have a web UI for a while (isn't planned, but never say never).
-- **Wombag** does not (yet) support TLS on its own. Make sure to have a proxy like Nginx in front of Wombag
+- the Wallabag v2 API is only about 70% supported for now (PUT, GET, DELETE, PATCH Entries. No such thing as Attributes and Tags yet. But we are working on it).
+- there is no authentication yet, everybody get's an OAUTH ticket if they ask nicely (run **Wombag** in your own, trusted networks with a single user only).
+- **Wombag** will not have a web UI for a while (isn't planned, but never say never). But there is a CLI interface which helps you in managing your data and users.
+- **Wombag** does not (yet) support TLS on its own. Make sure to have a proxy like Nginx in front of Wombag for that.
 
-We test the **Wombag** with the iOS and Firefox App. So YMMV.
+We test **Wombag** with the iOS and Firefox Wallabag App. YMMV.
 
 ## Installation ##
 
 ### Installation of **Wombag** ###
 
-If you want to run **Wombag** under a specific user (wombag), do this:
+Follow this instruction if you want to run Wombag on Linux.
+
+Create the user under which you want to run **Wombag**:
 
     sudo adduser wombag
     su wombag
@@ -49,7 +54,7 @@ Now we want to make sure that **Wombag** runs forever. First install the require
 
     sudo apt-get install supervisor
 
-Then copy the file utilities/wombag_supervisor.conf into your local supervisor configuration directory. This is usually done like this:
+Then copy the file _utilities/wombag_supervisor.conf_ into your local supervisor configuration directory. This is usually done like this:
  
     cp utilities/wombag_supervisor.conf /etc/supervisor/conf.d/wombag.conf 
     
@@ -57,13 +62,12 @@ Make sure you change the configuration to your local setup.
 
 ### How to set up transport security ###
 
-Since **Wombag** does not bring it's own crypto, you may need to install a TLS server in front of **Wombag**. You can do so
-with nginx, which is a lightweight http server and proxy.
+Since **Wombag** does not bring it's own transport encryption, you should install a TLS server in front of **Wombag**. You can do so with nginx, which is a lightweight http server and proxy.
 
 First prepare your /etc/apt/sources.list file (or just install the standard Debian package, your choice):
 
-    deb http://nginx.org/packages/debian/ jessie nginx
-    deb-src http://nginx.org/packages/debian/ jessie nginx
+    deb http://nginx.org/packages/debian/ stretch nginx
+    deb-src http://nginx.org/packages/debian/ stretch nginx
 
 Update apt-cache and install nginx to your system.
 
@@ -117,11 +121,11 @@ Please check this site for updates on what TLS settings currently make sense:
 
 Now run or reset your nginx and start your instance of **Wombag**.
 
-Thats it, your instance of **Wombag** should run as expected. All logs are sent to stdout for now. Have a look at */libs/log.js* if you want to change the options.
+Thats it, your instance of **Wombag** should run as expected. All logs are sent to stdout for now. Have a look at *config.json* if you want to change the options.
 
 ## Configuration ##
 
-All parameters which can be configured right now are in the file *config.js*. There are not that many parameters yet, indeed.
+All parameters which can be configured right now are in the file *config.js*.
 
 ## How to run ##
 
@@ -129,11 +133,7 @@ Point your Wallabag client to the root of **Wombag**. Use any credential you wis
 
 ## Contribution ##
 
-If you know JavaScript and would like to help out, send us a note. There is still much work to be done on **Wombag**.
-
-## Dependencies ##
-
-For now, have a look at the package.json file.
+If you know Go (or a bit of Angular for a nifty Web Frontend) and would like to help out, send us a note. There is still much work to be done on **Wombag**.
 
 
 ## License ##
