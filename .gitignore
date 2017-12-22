@@ -2,7 +2,8 @@
 .idea/*
 
 # database files
-wombag.sqlite
+*.sqlite
+*.sqlite3
 
 # mitmproxy flows
 *.flow

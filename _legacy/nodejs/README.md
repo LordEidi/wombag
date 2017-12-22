@@ -1,51 +1,76 @@
-Wombag
+WombaG
 ======
 
-**Wombag** (c) 2017 by [SwordLord - the coding crew](https://www.swordlord.com/)
+**WombaG** (c) 2017 by [SwordLord - the coding crew](https://www.swordlord.com/)
 
 ## Introduction ##
 
-**Wombag** is a lightweight read it later service, using the [Wallabag API](https://v2.wallabag.org/api/doc).
+**WombaG** is a lightweight read it later service based on Node.js, using the [Wallabag API](https://v2.wallabag.org/api/doc).
 
 _This is still work in progress! Expect things to crash and burn on a regular basis_
 
 Said that, the current version can save and retrieve entries, does update starred and archived flag and deletes whatever you ask to be deleted. Rest to follow...
 
-If you are looking for a lightweight service to store and manage websites and links in, then **Wombag** might be for you:
+If you are looking for a lightweight service to store and manage websites and links in, then **WombaG** might be for you:
 
-- supporting the core functionality of the Wallabag v2 API. So you can use all those Wallabag Clients with **Wombag**
-- no need for some scripting engine, just drop the wombagd binary on your host, make sure the configuration is correct and run it.
+- supporting the core functionality of the Wallabag v2 API. So you can use all those Wallabag Clients with **WombaG**
+- based on Node.js.
 
 ## Status ##
 
-**Wombag** is still in development and should be approached as such:
+**WombaG** is still in development and should be approached as such:
 
 - the API is only about 70% supported for now (put, get, delete, patch Entries. No such thing as Attributes and Tags yet. But we are working on it).
 - there is no authentication yet (run it in your own, trusted networks with a single user only).
-- **Wombag** will not have a web UI for a while (isn't planned, but never say never).
-- **Wombag** does not (yet) support TLS on its own. Make sure to have a proxy like Nginx in front of Wombag
+- **WombaG** will not have a web UI for a while (isn't planned, but never say never).
 
-We test the **Wombag** with the iOS and Firefox App. So YMMV.
+We test the **WombaG** with the iOS and Firefox App. So YMMV.
 
 ## Installation ##
 
-### Installation of **Wombag** ###
+First of all, you need a Node.js installation.
 
-If you want to run **Wombag** under a specific user (wombag), do this:
+### nodejs on Debian ###
 
-    sudo adduser wombag
-    su wombag
+Make sure that you have this line in your /etc/apt/sources.list file:
+
+    deb http://YOURMIRROR.debian.org/debian jessie main
+
+and then run:
+
+    sudo apt-get install nodejs nodejs-legacy npm
+    // eventually the next line as well
+    // sudo ln -s /usr/lib/nodejs/ /usr/lib/node
+
+### nodejs on OSX with homebrew ###
+
+    brew install node
+    brew install npm
+
+### Installation of **WombaG** ###
+
+If you want to run **WombaG** under a specific user (node), do this:
+
+    sudo adduser node
+    su node
     cd
+    mkdir wombag
+    cd wombag
 
-Go into the directory where you want to run your copy of **Wombag** and download the latest version from the Github release page:
+Go into the directory where you want to run your copy of **WombaG** and get the latest and greatest:
 
-    Work in Progress
+    cd /home/node/wombag
+    git clone https://github.com/LordEidi/wombag.git
 
-If everything worked according to plan, you should now have a new installation of the latest **Wombag**.
+And then with the magic of npm get the required libraries
 
-### Use supervisord to run **Wombag** as a service ###
+    npm install
 
-Now we want to make sure that **Wombag** runs forever. First install the required software:
+If everything worked according to plan, you should now have a new installation of the latest **WombaG**.
+
+### Use supervisord to run **WombaG** as a service ###
+
+Now we want to make sure that **WombaG** runs forever. First install the required software:
 
     sudo apt-get install supervisor
 
@@ -57,7 +82,7 @@ Make sure you change the configuration to your local setup.
 
 ### How to set up transport security ###
 
-Since **Wombag** does not bring it's own crypto, you may need to install a TLS server in front of **Wombag**. You can do so
+Since **WombaG** does not bring it's own crypto, you may need to install a TLS server in front of **WombaG**. You can do so
 with nginx, which is a lightweight http server and proxy.
 
 First prepare your /etc/apt/sources.list file (or just install the standard Debian package, your choice):
@@ -71,7 +96,7 @@ Update apt-cache and install nginx to your system.
     sudo apt-get install nginx
 
 Now configure a proxy configuration so that your instance of nginx will serve / prox the content of / for the
-**Wombag** server. To do so, you will need a configuration along this example:
+**WombaG** server. To do so, you will need a configuration along this example:
 
     server {
         listen   443;
@@ -115,9 +140,9 @@ Please check this site for updates on what TLS settings currently make sense:
 
 [https://mozilla.github.io/server-side-tls/ssl-config-generator](https://mozilla.github.io/server-side-tls/ssl-config-generator)
 
-Now run or reset your nginx and start your instance of **Wombag**.
+Now run or reset your nginx and start your instance of **WombaG**.
 
-Thats it, your instance of **Wombag** should run as expected. All logs are sent to stdout for now. Have a look at */libs/log.js* if you want to change the options.
+Thats it, your instance of **WombaG** should run now. All logs are sent to stdout for now. Have a look at */libs/log.js* if you want to change the options.
 
 ## Configuration ##
 
@@ -125,11 +150,11 @@ All parameters which can be configured right now are in the file *config.js*. Th
 
 ## How to run ##
 
-Point your Wallabag client to the root of **Wombag**. Use any credential you wish, every user gets logged in. Please stay save, install **Wombag** only in a trusted environment. At least until we include authentication mechanisms.
+Point your Wallabag client to the root of **WombaG**. Use any credential you wish, every user gets logged in. Please stay save, install **WombaG** only in a trusted environment. At least until we include authentication mechanisms.
 
 ## Contribution ##
 
-If you know JavaScript and would like to help out, send us a note. There is still much work to be done on **Wombag**.
+If you know JavaScript and would like to help out, send us a note. There is still much work to be done on **WombaG**.
 
 ## Dependencies ##
 
@@ -138,4 +163,4 @@ For now, have a look at the package.json file.
 
 ## License ##
 
-**Wombag** is published under the GNU Affero General Public Licence version 3. See the LICENCE file for details.
+**WombaG** is published under the GNU Affero General Public Licence version 3. See the LICENCE file for details.
