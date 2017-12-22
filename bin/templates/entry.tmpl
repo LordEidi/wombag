@@ -1,0 +1,24 @@
+{
+    "_links": {
+        "self": {
+            "href": "/api/entries/{{ .Entry.EntryId }}
+        }
+    },
+    "content": "{{ .Entry.GetContentJSON }}\n",
+    "created_at": "{{ .Entry.CrtDat }}",
+    "domain_name": "www.numerama.com",
+    "id": {{ .Entry.EntryId }},
+    "is_archived": {{ .Entry.Archived }},
+    "is_starred": {{ .Entry.Starred }},
+    "language": "fr-FR",
+    "mimetype": "text/html",
+    "preview_picture": "http://www.numerama.com/content/uploads/2016/04/post-it.jpg",
+    "reading_time": 2,
+    "tags": [],
+    "title": "{{ .Entry.GetTitleJSON }}",
+    "updated_at": "{{ .Entry.UpdDat }}",
+    "url": "{{ .Entry.URL }}",
+    "user_email": "",
+    "user_id": 1,
+    "user_name": "wallabag"
+}

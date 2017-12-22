@@ -7,3 +7,15 @@
 
 # mitmproxy flows
 *.flow
+
+# binaries
+bin/wombagd
+bin/wombagcli
+bin/*.db
+bin/log
+
+# packages
+pkg/*
+
+# debug data
+/*.json

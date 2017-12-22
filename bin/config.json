@@ -1,0 +1,12 @@
+{
+  "env": "dev",
+  "add_demo_users": "true",
+  "www": {
+    "host": "0.0.0.0",
+    "port": "8081"
+  },
+  "db": {
+    "dialect": "sqlite3",
+    "args": "wombag.db"
+  }
+}

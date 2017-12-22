@@ -1,0 +1,49 @@
+{
+    "_embedded": {
+        "items": [
+        {{range $key,$entry := .Entries}}
+        {
+            "_links": {
+                "self": {
+                    "href": "/api/entries/{{ $entry.EntryId }}"
+                }
+            },
+            "annotations": [],
+            "content": "{{ $entry.GetContentJSON }}\n",
+            "created_at": "2017-12-20T22:32:51+0000",
+            "domain_name": "www.numerama.com",
+            "id": {{ $entry.EntryId }},
+            "is_archived": {{ $entry.Archived }},
+            "is_starred": {{ $entry.Starred }},
+            "language": "fr-FR",
+            "mimetype": "text/html",
+            "preview_picture": "http://www.numerama.com/content/uploads/2016/04/post-it.jpg",
+            "reading_time": 2,
+            "tags": [],
+            "title": "{{ $entry.GetTitleJSON }}",
+            "updated_at": "2017-12-20T22:32:51+0000",
+            "url": "{{ $entry.URL }}",
+            "user_email": "",
+            "user_id": 1,
+            "user_name": "wallabag"
+        },
+        {{end}}
+        ]
+    },
+    "_links": {
+        "first": {
+            "href": "http://{{ .Server }}:{{ .Port }}/api/entries?page={{ .Page }}&perPage={{ .Limit }}"
+        },
+        "last": {
+            "href": "http://{{ .Server }}:{{ .Port }}/api/entries?page={{ .Page }}&perPage={{ .Limit }}"
+        },
+        "self": {
+            "href": "http://{{ .Server }}:{{ .Port }}/api/entries?page={{ .Page }}&perPage={{ .Limit }}"
+        }
+    },
+    "limit": {{ .Limit }},
+    "page": {{ .Page }},
+    "pages": {{ .Page }},
+    "total": {{ .Page }}
+}
+
