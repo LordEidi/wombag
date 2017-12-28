@@ -30,87 +30,93 @@ package cmd
  **
 -----------------------------------------------------------------------------*/
 import (
-	"fmt"
-	"strconv"
-	"swordlord.com/wombag/tablemodule"
-
 	"github.com/spf13/cobra"
+	"swordlord.com/wombag/tablemodule"
 )
 
-// entryCmd represents the domain command
-var entryCmd = &cobra.Command{
-	Use:   "entry",
-	Short: "With the entry command you can add, change and manage your entries.",
-	Long: `With the entry command you can add, change and manage your entries.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("command 'entry' called")
-	},
+// domainCmd represents the domain command
+var deviceCmd = &cobra.Command{
+	Use:   "device",
+	Short: "Add, change and manage devices of your users.",
+	Long: `Add, change and manage devices of your users. Requires a subcommand.`,
+	RunE: nil,
 }
 
-var entryListCmd = &cobra.Command{
+var deviceListCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List all entries (without details).",
-	Long: `List all entries (without details).`,
-	RunE: ListEntry,
+	Short: "List all devices.",
+	Long: `List all devices.`,
+	RunE: ListDevices,
 }
 
-var entryAddCmd = &cobra.Command{
-	Use:   "add [url]",
-	Short: "Add a new entry. Wombag will instantly get details from the given domain.",
-	Long: `Add a new entry. Wombag will instantly get details from the given domain.`,
-	Args: cobra.ExactArgs(1),
-	RunE: AddEntry,
+var deviceAddCmd = &cobra.Command{
+	Use:   "add [device] [password] [user]",
+	Short: "Add new device to given user.",
+	Long: `Add new device to given user.`,
+	RunE: AddDevice,
 }
 
-var entryDeleteCmd = &cobra.Command{
-	Use:   "delete [entry]",
-	Short: "Deletes an entry.",
-	Long: `Deletes an entry.`,
-	Args: cobra.ExactArgs(1),
-	RunE: DeleteEntry,
+var deviceUpdateCmd = &cobra.Command{
+	Use:   "update [device] [password]",
+	Short: "Update the password of the device.",
+	Long: `Update the password of the device.`,
+	RunE: UpdateDevice,
 }
 
-func ListEntry(cmd *cobra.Command, args []string) error {
+var deviceDeleteCmd = &cobra.Command{
+	Use:   "delete [device]",
+	Short: "Deletes a device.",
+	Long: `Deletes a device.`,
+	RunE: DeleteDevice,
+}
 
-	tablemodule.ListEntries()
+func ListDevices(cmd *cobra.Command, args []string) error {
+
+	tablemodule.ListDevice()
 
 	return nil
 }
 
-func AddEntry(cmd *cobra.Command, args []string) error {
+func AddDevice(cmd *cobra.Command, args []string) error {
 
-	if len(args) != 1 {
-		er("command 'add' needs an URL")
+	if len(args) != 3 {
+		er("command 'add' needs a device, password and user")
 	} else {
-		tablemodule.AddEntry(args[0])
+		tablemodule.AddDevice(args[0], args[1], args[2])
 	}
 
 	return nil
 }
 
-func DeleteEntry(cmd *cobra.Command, args []string) error {
+func UpdateDevice(cmd *cobra.Command, args []string) error {
 
-	if len(args) != 1 {
-		er("command 'delete' needs an ID")
+	if len(args) != 2 {
+		er("command 'update' needs a device and a new password")
 	} else {
-
-		id, err := strconv.Atoi(args[0])
-		if err != nil {
-			er("Entry ID is not a number")
-		}
-		tablemodule.DeleteEntry(uint(id))
+		tablemodule.UpdateDevice(args[0], args[1])
 	}
 
 	return nil
 }
 
+func DeleteDevice(cmd *cobra.Command, args []string) error {
+
+	if len(args) < 1 {
+		er("command 'delete' needs a device Id")
+	} else {
+		tablemodule.DeleteDevice(args[0])
+	}
+
+	return nil
+}
 
 func init() {
-	RootCmd.AddCommand(entryCmd)
+	RootCmd.AddCommand(deviceCmd)
 
-	entryCmd.AddCommand(entryAddCmd)
-	entryCmd.AddCommand(entryListCmd)
-	entryCmd.AddCommand(entryDeleteCmd)
+	deviceCmd.AddCommand(deviceListCmd)
+	deviceCmd.AddCommand(deviceAddCmd)
+	deviceCmd.AddCommand(deviceUpdateCmd)
+	deviceCmd.AddCommand(deviceDeleteCmd)
 
 	// Here you will define your flags and configuration settings.
 

@@ -3,23 +3,22 @@ package main
 import (
 	"fmt"
 	"os"
-
-	"swordlord.com/gohjasmincli/cmd"
-	"swordlord.com/gohjasmin"
+	"swordlord.com/wombag"
+	"swordlord.com/wombagcli/cmd"
 )
 
 func main() {
 
 	//
-	gohjasmin.InitConfig()
+	wombag.InitConfig()
 
 	//
-	gohjasmin.InitDatabase()
-	defer gohjasmin.CloseDB()
+	wombag.InitDatabase()
+	defer wombag.CloseDB()
 
 	if err := cmd.RootCmd.Execute(); err != nil {
 		fmt.Println(err)
-		gohjasmin.CloseDB()
+		wombag.CloseDB()
 		os.Exit(1)
 	}
 }

@@ -78,7 +78,7 @@ func InitConfig() {
 
 func GetStringFromConfig(key string) string {
 
-	return viper.GetString(env + "." + key)
+	return viper.GetString(key)
 }
 
 func GetEnv() string {

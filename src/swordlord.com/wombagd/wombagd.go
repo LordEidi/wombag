@@ -64,25 +64,27 @@ func main() {
 
 	r.GET("/", lib.OnRoot)
 
-	r.DELETE("/api/annotations/:annotation", lib.OnRemoveAnnotation) // DELETE
-	r.PUT("/api/annotations/:annotation", lib.OnUpdateAnnotation) // PUT
-	r.GET("/api/annotations/:annotation", lib.OnRetrieveAnnotation) // GET
-	r.POST("/api/annotations/:entry", lib.OnCreateNewAnnotation) // POST
-	r.GET("/api/entries/", lib.OnRetrieveEntries) // GET
-	r.POST("/api/entries/", lib.OnCreateEntry) // POST
-	r.DELETE("/api/entries/:entry", lib.OnDeleteEntry) // DELETE
-	r.GET("/api/entries/:entry", lib.OnGetEntry) // GET
-	r.PATCH("/api/entries/:entry", lib.OnChangeEntry) // PATCH
-	r.GET("/api/entries/:entry/export", lib.OnGetEntryFormatted) // GET
-	r.PATCH("/api/entries/:entry/reload", lib.OnReloadEntry) // PATCH
-	r.GET("/api/entries/:entry/tags", lib.OnRetrieveTagsForEntry) // GET
-	r.POST("/api/entries/:entry/tags", lib.OnAddTagsToEntry) // POST
-	r.DELETE("/api/entries/:entry/tags/:tag", lib.OnDeleteTagsOnEntry) // DELETE
-	r.DELETE("/api/tag/label", lib.OnDeleteTagOnEntry) // DELETE
-	r.GET("/api/tags", lib.OnRetrieveAllTags) // GET
-	//r.DELETE("/api/tags/label", lib.OnRemoveTagsFromEveryEntry) // DELETE
-	r.DELETE("/api/tags/:tag", lib.OnRemoveTagFromEveryEntry) // DELETE
-	r.GET("/api/version", lib.OnRetrieveVersionNumber) // GET
+	api := r.Group("/api/", lib.ServiceOAuth())
+
+	api.DELETE("/annotations/:annotation", lib.OnRemoveAnnotation) // DELETE
+	api.PUT("/annotations/:annotation", lib.OnUpdateAnnotation) // PUT
+	api.GET("/annotations/:annotation", lib.OnRetrieveAnnotation) // GET
+	api.POST("/annotations/:entry", lib.OnCreateNewAnnotation) // POST
+	api.GET("/entries/", lib.OnRetrieveEntries) // GET
+	api.POST("/entries/", lib.OnCreateEntry) // POST
+	api.DELETE("/entries/:entry", lib.OnDeleteEntry) // DELETE
+	api.GET("/entries/:entry", lib.OnGetEntry) // GET
+	api.PATCH("/entries/:entry", lib.OnChangeEntry) // PATCH
+	api.GET("/entries/:entry/export", lib.OnGetEntryFormatted) // GET
+	api.PATCH("/entries/:entry/reload", lib.OnReloadEntry) // PATCH
+	api.GET("/entries/:entry/tags", lib.OnRetrieveTagsForEntry) // GET
+	api.POST("/entries/:entry/tags", lib.OnAddTagsToEntry) // POST
+	api.DELETE("/entries/:entry/tags/:tag", lib.OnDeleteTagsOnEntry) // DELETE
+	api.DELETE("/tag/label", lib.OnDeleteTagOnEntry) // DELETE
+	api.GET("/tags", lib.OnRetrieveAllTags) // GET
+	//api.DELETE("/tags/label", lib.OnRemoveTagsFromEveryEntry) // DELETE
+	api.DELETE("/tags/:tag", lib.OnRemoveTagFromEveryEntry) // DELETE
+	api.GET("/version", lib.OnRetrieveVersionNumber) // GET
 
 	r.POST("oauth/v2/token", lib.OnOAuth)
 

@@ -187,6 +187,9 @@ func OnRetrieveVersionNumber(c *gin.Context){
 
 func OnOAuth(c *gin.Context){
 
+	//ValidateDeviceInDB
+
+
 	wtext := render.WombagText{}
 	c.Render(200, wtext)
 }

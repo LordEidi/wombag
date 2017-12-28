@@ -43,6 +43,9 @@ type Entry struct {
 	Domain string
 	Title string
 	Content string `sql:"type:blob"`
+	Language string
+	MimeType string
+	PreviewPicture string
 	Tags string
 	Starred bool `sql:"NOT NULL;DEFAULT:false"`
 	Archived bool `sql:"NOT NULL;DEFAULT:false"`

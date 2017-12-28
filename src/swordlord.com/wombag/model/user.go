@@ -35,6 +35,7 @@ import (
 type User struct {
 	Name    string `gorm:"primary_key"`
 	Pwd 	string
+	Devices   []Device `gorm:"ForeignKey:Name"`
 	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`
 	UpdDat	time.Time `sql:"DEFAULT:current_timestamp"`
 }

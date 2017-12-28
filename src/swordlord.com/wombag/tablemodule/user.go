@@ -64,44 +64,6 @@ func ValidateUserInDB(name, password string) (bool) {
 	return hasAccess
 }
 
-func ensureUserTableExists(){
-
-	/*
-	CREATE TABLE user
-	(
-		name VARCHAR PRIMARY KEY,
-		pwd VARCHAR NOT NULL,
-		crt_dat DATETIME NOT NULL,
-		upd_dat DATETIME
-	);
-
-	db, err := sql.Open("sqlite3", "./ohjasmin.db")
-	if err != nil {
-	log.Fatal(err)
-	return false, permissions
-	}
-	defer db.Close()
-
-	var count int
-
-	// TODO get permissions from db
-	permissions = append(permissions, "permission_from_DB")
-
-	row := db.QueryRow("SELECT COUNT(*) FROM domain WHERE domain=? AND pwd=? ", user, password)
-	err = row.Scan(&count)
-	if err != nil {
-	log.Fatal(err)
-	return false, permissions
-	}
-
-	if count > 0 {
-	return true, permissions
-	}
-
-	return false, permissions
-	*/
-}
-
 func ListUser() {
 
 	db := wombag.GetDB()
@@ -125,19 +87,21 @@ func ListUser() {
 	wombag.WriteTable([]string{"Name", "Pwd", "CrtDat", "UpdDat"}, users)
 }
 
-func AddUser(name string, pwd string) {
+func AddUser(name string, pwd string) (model.User, error) {
 
 	db := wombag.GetDB()
 
-	retDB := db.Create(&model.User{Name: name, Pwd: pwd})
+	user := model.User{Name: name, Pwd: pwd}
+	retDB := db.Create(&user)
 
 	if retDB.Error != nil {
 		log.Printf("Error with User %q: %s\n", name, retDB.Error )
 		log.Fatal(retDB.Error)
-		return
+		return model.User{}, retDB.Error
 	}
 
 	fmt.Printf("User %s added.\n", name)
+	return user, nil
 }
 
 func UpdateUser(name string, pwd string) {
