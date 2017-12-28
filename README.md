@@ -24,7 +24,6 @@ If you are looking for a lightweight service to store and manage websites and li
 **Wombag** is still under development and should be approached as such:
 
 - the Wallabag v2 API is only about 70% supported for now (PUT, GET, DELETE, PATCH Entries. No such thing as Attributes and Tags yet. But we are working on it).
-- there is no authentication yet, everybody get's an OAUTH ticket if they ask nicely (run **Wombag** in your own, trusted networks with a single user only).
 - **Wombag** will not have a web UI for a while (isn't planned, but never say never). But there is a CLI interface which helps you in managing your data and users.
 - **Wombag** does not (yet) support TLS on its own. Make sure to have a proxy like Nginx in front of Wombag for that.
 
@@ -129,7 +128,18 @@ All parameters which can be configured right now are in the file *config.js*.
 
 ## How to run ##
 
-Point your Wallabag client to the root of **Wombag**. Use any credential you wish, every user gets logged in. Please stay save, install **Wombag** only in a trusted environment. At least until we include authentication mechanisms.
+Point your Wallabag client to the root of **Wombag**. The rest should work as expected.
+
+If you want to play around with the API for a bit, you might be interested in these curl examples:
+
+* add entry: _curl -X POST 'http://0.0.0.0:8081/api/entries/' --data 'url=http://test' -H 'Content-Type:application/x-www-form-urlencoded' -H "Authorization: Bearer (your access token)"_
+
+* get entries: _curl -X GET 'http://0.0.0.0:8081/api/entries/?page=1&perPage=20' -H "Authorization: Bearer (your access token)"_
+
+* get entry: _curl -X GET 'http://0.0.0.0:8081/api/entries/1' -H "Authorization: Bearer (your access token)"_
+
+* patch entry: _curl -X PATCH 'http://0.0.0.0:8081/api/entries/1' --data 'archive=1&starred=1' -H 'Content-Type:application/x-www-form-urlencoded' -H "Authorization: Bearer (your access token)"_
+
 
 ## Contribution ##
 
