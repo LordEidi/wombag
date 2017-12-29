@@ -45,14 +45,14 @@ func ServiceOAuth() gin.HandlerFunc {
 		authHeader := c.Request.Header.Get("Authorization")
 		if authHeader == "" {
 			log.Printf("There is no authorization header.\n" )
-			c.AbortWithStatus(401)
+			c.AbortWithStatusJSON(401, gin.H{ "message": "Access not authorised"})
 			return
 		}
 
 		ahElements := strings.Split(authHeader, " ")
 		if len(ahElements) != 2 {
 			log.Printf("There is an authorization header but with wrong format: %s.\n", authHeader )
-			c.AbortWithStatus(401)
+			c.AbortWithStatusJSON(401, gin.H{ "message": "Access not authorised"})
 			return
 		}
 
@@ -68,12 +68,12 @@ func ServiceOAuth() gin.HandlerFunc {
 			} else {
 
 				log.Printf("Wrong AccessToken. Access denied.\n" )
-				c.AbortWithStatus(401)
+				c.AbortWithStatusJSON(401, gin.H{ "message": "Access not authorised"})
 			}
 		} else {
 
 			log.Printf("There is an authorization header but with wrong format: %s.\n", authHeader )
-			c.AbortWithStatus(401)
+			c.AbortWithStatusJSON(401, gin.H{ "message": "Access not authorised"})
 		}
 	}
 }
