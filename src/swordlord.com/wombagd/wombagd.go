@@ -47,23 +47,18 @@ func main() {
 	wombag.InitDatabase()
 	defer wombag.CloseDB()
 
-	//gin.SetMode(gin.ReleaseMode)
+	env := wombag.GetStringFromConfig("env")
+
+	if env != "dev" {
+		gin.SetMode(gin.ReleaseMode)
+	}
+
 	r := gin.Default()
 
-	// Group using gin.BasicAuth() middleware
-	//authorized := r.Group("/", lib.BasicAuth())
-
-	/*
-	authorized.GET("/user/:name/*action", func(c *gin.Context) {
-		name := c.Param("name")
-		action := c.Param("action")
-		message := name + " is " + action
-		c.String(http.StatusOK, message)
-	})
-	*/
-
+	// what to do when a user hits the root
 	r.GET("/", lib.OnRoot)
 
+	// group to wrap all services which need authentication (authentication bearer http header)
 	api := r.Group("/api/", lib.ServiceOAuth())
 
 	api.DELETE("/annotations/:annotation", lib.OnRemoveAnnotation) // DELETE
@@ -82,33 +77,44 @@ func main() {
 	api.DELETE("/entries/:entry/tags/:tag", lib.OnDeleteTagsOnEntry) // DELETE
 	api.DELETE("/tag/label", lib.OnDeleteTagOnEntry) // DELETE
 	api.GET("/tags", lib.OnRetrieveAllTags) // GET
-	//api.DELETE("/tags/label", lib.OnRemoveTagsFromEveryEntry) // DELETE
+	// this one does not like the one below, sine both have the same path, left here for completeness of the API
+	// api.DELETE("/tags/label", lib.OnRemoveTagsFromEveryEntry) // DELETE
 	api.DELETE("/tags/:tag", lib.OnRemoveTagFromEveryEntry) // DELETE
 	api.GET("/version", lib.OnRetrieveVersionNumber) // GET
 
+	// endpoint which is used to ask for a access token
 	r.POST("oauth/v2/token", lib.OnOAuth)
 
+	// TODO set a bypass function when no path triggers
 	//r.GET('/', onHitRoot);
 	//r.bypassed.add(onBypass);
-
-	// TODO in DEV Mode only
-	r.GET("/debug/pprof/block", pprofHandler(pprof.Index))
-	r.GET("/debug/pprof/heap", pprofHandler(pprof.Index))
-	r.GET("/debug/pprof/profile", pprofHandler(pprof.Profile))
-	r.POST("/debug/pprof/symbol", pprofHandler(pprof.Symbol))
-	r.GET("/debug/pprof/symbol", pprofHandler(pprof.Symbol))
-	r.GET("/debug/pprof/trace", pprofHandler(pprof.Trace))
 
 	host := wombag.GetStringFromConfig("www.host")
 	port := wombag.GetStringFromConfig("www.port")
 
-	fmt.Printf("wombagd running on %v:%v\n", host, port)
-	fmt.Printf("** add entry  : curl -X POST 'http://%s:%s/api/entries/' --data 'url=http://test' -H 'Content-Type:application/x-www-form-urlencoded'\n", host, port)
-	fmt.Printf("** get entries: curl -X GET 'http://%s:%s/api/entries/?page=1&perPage=20'\n", host, port)
-	fmt.Printf("** get entry  : curl -X GET 'http://%s:%s/api/entries/1'\n", host, port)
-	fmt.Printf("** patch entry: curl -X PATCH 'http://%s:%s/api/entries/1' --data 'archive=1&starred=1' -H 'Content-Type:application/x-www-form-urlencoded'\n", host, port)
+	if env == "dev" {
 
-	r.Run(host + ":" + port) // listen and serve
+		// give the user the possibility to trace and profile the app
+		r.GET("/debug/pprof/block", pprofHandler(pprof.Index))
+		r.GET("/debug/pprof/heap", pprofHandler(pprof.Index))
+		r.GET("/debug/pprof/profile", pprofHandler(pprof.Profile))
+		r.POST("/debug/pprof/symbol", pprofHandler(pprof.Symbol))
+		r.GET("/debug/pprof/symbol", pprofHandler(pprof.Symbol))
+		r.GET("/debug/pprof/trace", pprofHandler(pprof.Trace))
+
+		// give the user some hints on what URLs she could test
+		fmt.Printf("wombagd running on %v:%v\n", host, port)
+
+		fmt.Printf("** get token  : curl -X POST 'http://%s:%s/oauth/v2/token' -F 'client_id=id' -F 'client_secret=secret' -F 'grant_type=password' -F 'password=pwd' -F 'username=uid' -H 'Content-Type:application/x-www-form-urlencoded'\n", host, port)
+		fmt.Printf("** add entry  : curl -X POST 'http://%s:%s/api/entries/' --data 'url=http://test' -H 'Content-Type:application/x-www-form-urlencoded' -H 'Authorization: Bearer (access token)'\n", host, port)
+		fmt.Printf("** get entries: curl -X GET 'http://%s:%s/api/entries/?page=1&perPage=20' -H 'Authorization: Bearer (access token)\n", host, port)
+		fmt.Printf("** get entry  : curl -X GET 'http://%s:%s/api/entries/1' -H 'Authorization: Bearer (access token)\n", host, port)
+		fmt.Printf("** patch entry: curl -X PATCH 'http://%s:%s/api/entries/1' --data 'archive=1&starred=1' -H 'Content-Type:application/x-www-form-urlencoded' -H 'Authorization: Bearer (access token)\n", host, port)
+
+	}
+
+	// have fun with wombagd
+	r.Run(host + ":" + port)
 }
 
 func pprofHandler(h http.HandlerFunc) gin.HandlerFunc {

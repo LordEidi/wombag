@@ -40,6 +40,7 @@ const AuthUser = "username"
 
 // Middleware to check for Bearer Header
 func ServiceOAuth() gin.HandlerFunc {
+
 	return func(c *gin.Context) {
 
 		authHeader := c.Request.Header.Get("Authorization")

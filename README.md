@@ -7,7 +7,7 @@ Wombag
 
 ## Introduction ##
 
-**Wombag** is a lightweight, self-hostable read it later service, supporting the [Wallabag API](https://v2.wallabag.org/api/doc).
+**Wombag** is a lightweight, self-hostable read it later service, supporting the [Wallabag API](https://app.wallabag.it/api/doc).
 
 _This is still work in progress! Expect things to crash and burn on a regular basis. Said that, the current version can save and retrieve entries, updates starred and archived flags and deletes whatever you ask to be deleted. Rest to follow..._
 

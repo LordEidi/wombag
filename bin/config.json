@@ -8,5 +8,10 @@
   "db": {
     "dialect": "sqlite3",
     "args": "wombag.db"
+  },
+  "templates": {
+    "auth": "./templates/auth.tmpl",
+    "entries": "./templates/entries.tmpl",
+    "entry": "./templates/entry.tmpl"
   }
 }
