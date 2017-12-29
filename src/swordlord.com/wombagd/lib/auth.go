@@ -45,7 +45,16 @@ func ServiceOAuth() gin.HandlerFunc {
 
 		authHeader := c.Request.Header.Get("Authorization")
 		if authHeader == "" {
-			log.Printf("There is no authorization header.\n" )
+
+			// test the URL instead, this is a Hack for apps which think they should
+			// put the access token into the URL...
+			accessTokenUrl := c.Request.URL.Query().Get("access_token")
+			if accessTokenUrl != "" {
+				validateAccessToken(accessTokenUrl, c)
+				return
+			}
+
+			log.Printf("There is neither an authorization header nor an access token in the URL.\n" )
 			c.AbortWithStatusJSON(401, gin.H{ "message": "Access not authorised"})
 			return
 		}
@@ -59,22 +68,28 @@ func ServiceOAuth() gin.HandlerFunc {
 
 		if ahElements[0] == "Bearer" {
 
-			device, err := tablemodule.ValidateAccessTokenInDB(ahElements[1])
+			validateAccessToken(ahElements[1], c)
 
-			if err != nil {
-
-				c.Set(AuthIsAuthenticated, true)
-				c.Set(AuthUser, device.User)
-				c.Next()
-			} else {
-
-				log.Printf("Wrong AccessToken. Access denied.\n" )
-				c.AbortWithStatusJSON(401, gin.H{ "message": "Access not authorised"})
-			}
 		} else {
 
 			log.Printf("There is an authorization header but with wrong format: %s.\n", authHeader )
 			c.AbortWithStatusJSON(401, gin.H{ "message": "Access not authorised"})
 		}
+	}
+}
+
+func validateAccessToken(accToken string, c *gin.Context) {
+
+	device, err := tablemodule.ValidateAccessTokenInDB(accToken)
+
+	if err == nil {
+
+		c.Set(AuthIsAuthenticated, true)
+		c.Set(AuthUser, device.User)
+		c.Next()
+	} else {
+
+		log.Printf("Wrong AccessToken. Access denied.\n" )
+		c.AbortWithStatusJSON(401, gin.H{ "message": "Access not authorised"})
 	}
 }

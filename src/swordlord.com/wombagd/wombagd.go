@@ -65,8 +65,10 @@ func main() {
 	api.PUT("/annotations/:annotation", lib.OnUpdateAnnotation) // PUT
 	api.GET("/annotations/:annotation", lib.OnRetrieveAnnotation) // GET
 	api.POST("/annotations/:entry", lib.OnCreateNewAnnotation) // POST
-	api.GET("/entries/", lib.OnRetrieveEntries) // GET
+	api.GET("/entries", lib.OnRetrieveEntries) // GET
+	api.GET("/entries.json", lib.OnRetrieveEntries) // GET
 	api.POST("/entries/", lib.OnCreateEntry) // POST
+	api.POST("/entries.json", lib.OnCreateEntry) // POST
 	api.DELETE("/entries/:entry", lib.OnDeleteEntry) // DELETE
 	api.GET("/entries/:entry", lib.OnGetEntry) // GET
 	api.PATCH("/entries/:entry", lib.OnChangeEntry) // PATCH
@@ -77,13 +79,15 @@ func main() {
 	api.DELETE("/entries/:entry/tags/:tag", lib.OnDeleteTagsOnEntry) // DELETE
 	api.DELETE("/tag/label", lib.OnDeleteTagOnEntry) // DELETE
 	api.GET("/tags", lib.OnRetrieveAllTags) // GET
+	api.GET("/tags.json", lib.OnRetrieveAllTags) // GET
 	// this one does not like the one below, sine both have the same path, left here for completeness of the API
 	// api.DELETE("/tags/label", lib.OnRemoveTagsFromEveryEntry) // DELETE
 	api.DELETE("/tags/:tag", lib.OnRemoveTagFromEveryEntry) // DELETE
 	api.GET("/version", lib.OnRetrieveVersionNumber) // GET
+	api.GET("/version.html", lib.OnRetrieveVersionNumber) // GET
 
 	// endpoint which is used to ask for a access token
-	r.POST("oauth/v2/token", lib.OnOAuth)
+	r.POST("/oauth/v2/token", lib.OnOAuth)
 
 	// TODO set a bypass function when no path triggers
 	//r.GET('/', onHitRoot);
@@ -105,7 +109,7 @@ func main() {
 		// give the user some hints on what URLs she could test
 		fmt.Printf("wombagd running on %v:%v\n", host, port)
 
-		fmt.Printf("** get token  : curl -X POST 'http://%s:%s/oauth/v2/token' -F 'client_id=id' -F 'client_secret=secret' -F 'grant_type=password' -F 'password=pwd' -F 'username=uid' -H 'Content-Type:application/x-www-form-urlencoded'\n", host, port)
+		fmt.Printf("** get token  : curl -X POST 'http://%s:%s/oauth/v2/token' --data 'client_id=1&client_secret=secret&grant_type=password&password=pwd&username=uid' -H 'Content-Type:application/x-www-form-urlencoded'\n", host, port)
 		fmt.Printf("** add entry  : curl -X POST 'http://%s:%s/api/entries/' --data 'url=http://test' -H 'Content-Type:application/x-www-form-urlencoded' -H 'Authorization: Bearer (access token)'\n", host, port)
 		fmt.Printf("** get entries: curl -X GET 'http://%s:%s/api/entries/?page=1&perPage=20' -H 'Authorization: Bearer (access token)\n", host, port)
 		fmt.Printf("** get entry  : curl -X GET 'http://%s:%s/api/entries/1' -H 'Authorization: Bearer (access token)\n", host, port)

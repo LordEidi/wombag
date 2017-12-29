@@ -34,7 +34,6 @@ import (
 	"log"
 	"swordlord.com/wombag"
 	"swordlord.com/wombag/model"
-	"time"
 )
 
 func ValidateDeviceInDB(deviceId, deviceToken string) (model.Device, error) {
@@ -58,8 +57,11 @@ func ValidateDeviceInDB(deviceId, deviceToken string) (model.Device, error) {
 	u1 := uuid.NewV4()
 	device.AccessToken = u1.String()
 
+	u2 := uuid.NewV4()
+	device.RefreshToken = u2.String()
+
 	// TODO: set sensible validation time and validate it when authenticating
-	device.ValidUntil = time.Now().Add(0)
+	device.ValidUntil = 3600
 
 	updDB := db.Save(&device)
 	if updDB.Error != nil {

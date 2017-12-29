@@ -31,10 +31,10 @@ package lib
 import (
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"strconv"
 	"swordlord.com/wombag/tablemodule"
 	"swordlord.com/wombagd/render"
-	"log"
 )
 
 // standard query params usually sent with requests
@@ -50,11 +50,11 @@ type QueryParams struct {
 // the form params which are sent to get an access token
 type AccessTokenReqParams struct {
 
-	ClientID		string	`form:"client_id"` 		// aa
-	ClientSecret	string	`form:"client_secret"` 	// aa
-	GrantType		string	`form:"grant_type"` 	// password
-	Password		string	`form:"password"` 		// aa
-	UserName		string	`form:"username"` 		// aa
+	ClientID		string	`form:"client_id" json:"client_id"` 		// aa
+	ClientSecret	string	`form:"client_secret" json:"client_secret"` // aa
+	GrantType		string	`form:"grant_type" json:"grant_type"` 		// password
+	Password		string	`form:"password" json:"password"` 			// aa
+	UserName		string	`form:"username" json:"username"` 			// aa
 }
 
 type oAuth2 struct {
@@ -230,6 +230,7 @@ func OnRetrieveVersionNumber(c *gin.Context){
 	c.JSON(200, gin.H{"message": "This is Wombag"})
 }
 
+/*
 func OnOAuth(c *gin.Context){
 
 	clientId := c.Param("client_id")
@@ -258,17 +259,16 @@ func OnOAuth(c *gin.Context){
 	c.Render(200, wtext)
 }
 
-/*
-
+*/
 func OnOAuth(c *gin.Context){
 
 	var form AccessTokenReqParams
 
-	err := c.Bind(&form)
+	err1 := c.Bind(&form)
 
-	if err != nil {
-		fmt.Printf("Error when binding %v\n", err)
-		c.JSON(300, gin.H{"An Error occured": err})
+	if err1 != nil {
+		fmt.Printf("Error when binding %v\n", err1)
+		c.JSON(300, gin.H{"An Error occured": err1})
 	}
 
 	if form.ClientID == "" || form.ClientSecret == "" {
@@ -288,9 +288,9 @@ func OnOAuth(c *gin.Context){
 	oauth := getNewOAuth2()
 
 	oauth.AccessToken = device.AccessToken
+	oauth.RefreshToken = device.AccessToken
 
 	wtext := render.WombagText{}
 	wtext.Data = oauth
 	c.Render(200, wtext)
 }
-*/

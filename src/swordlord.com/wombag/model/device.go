@@ -37,8 +37,9 @@ type Device struct {
 	Token 	string
 	User	User `gorm:"ForeignKey:Name"`
 	UserName string
-	AccessToken	string
-	ValidUntil	time.Time `sql:"DEFAULT:current_timestamp"`
+	AccessToken		string
+	RefreshToken	string
+	ValidUntil	uint `sql:"DEFAULT:3600"`
 	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`
 	UpdDat	time.Time `sql:"DEFAULT:current_timestamp"`
 }
