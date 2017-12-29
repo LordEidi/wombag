@@ -13,21 +13,30 @@ _This is still work in progress! Expect things to crash and burn on a regular ba
 
 If you are looking for a lightweight service to store and manage websites and links in, then **Wombag** might be for you:
 
-- **Wombag** supports the core functionality of the _Wallabag v2 API_. So you can use your preferred Wallabag Apps and Clients with **Wombag**
-- **Wombag** is not based on a scripting engine but is compiled into a _native binary_ for your platform. This makes **Wombag** _very lightweight_.
-- **Wombag** makes use of [Gorm](http://jinzhu.me/gorm/) to store the data in a database. We use SQLite3 as our database of choice. But you may use PostgreSQL, MS SQL Server or MySQL, if you prefer. 
-- **Wombag** currently does not have its own web frontend. But there is the wombagcli command line interface to configure users and manage the data.
+- **Wombag** supports the core functionality of the _Wallabag v2 API_. So that you can use your preferred Wallabag Apps and Clients with **Wombag**.
+- **Wombag** is not based on a scripting engine but is compiled into a _native binary_ for your platform. This makes **Wombag** _very lightweight_. Just take the application and run it on your server.
+- **Wombag** makes use of [Gorm](http://jinzhu.me/gorm/) to store its data in a database. We use SQLite3 as our database of choice. But you may use PostgreSQL, MS SQL Server or MySQL, if you prefer or need some more oomph at the data layer. 
+- **Wombag** currently does not have its own web frontend. But there is the wombagcli command line interface to configure users and manage the data. Which also means there is no admin UI exposed to the world.
+
+## Components ##
+
+**Wombag** consists of two parts: 
+
+- The **wombagd** daemon is the server part, accepting links, doing the readability magic and serving your links to your clients. Run the daemon on a server and point your clients towards it.
+- The **wombagcli** admin client, running on the commandline. With this client you can manage your users and devices, as well as the links and websites you want to store in **Wombag**. You could even automate some interaction with **Wombag** with the help of this tool. Like fetching mails and adding the links in them to **Wombag**, or something like that.
 
 
 ## Status ##
 
-**Wombag** is still under development and should be approached as such:
+**Wombag** is still under development:
 
-- the Wallabag v2 API is only about 70% supported for now (PUT, GET, DELETE, PATCH Entries. No such thing as Attributes and Tags yet. But we are working on it).
-- **Wombag** will not have a web UI for a while (isn't planned, but never say never). But there is a CLI interface which helps you in managing your data and users.
-- **Wombag** does not (yet) support TLS on its own. Make sure to have a proxy like Nginx in front of Wombag for that.
+- the Wallabag v2 API is about 80% supported for now (PUT, GET, DELETE, PATCH Entries. No such things as Attributes and Tags yet. But we are working on it).
+- there is also no such thing as multi-user support. While you can configure multiple users and devices, all those users will see the same data. This is definitely a planned feature, but not yet done (you might help out, if you need this quicker).
+- **Wombag** will not have a web UI for a while (isn't planned, but never say never). But there is our CLI interface which helps you in managing your data and users.
+- **Wombag** does not support TLS on its own. Make sure to have a proxy like Nginx in front of Wombag for that. See below for configuration hints on that.
 
-We test **Wombag** with the iOS and Firefox Wallabag App. YMMV.
+We use **Wombag** with the iOS and Firefox Wallabag Apps. YMMV if you use different clients.
+
 
 ## Installation ##
 
@@ -43,13 +52,23 @@ Create the user under which you want to run **Wombag**:
 
 Go into the directory where you want to run your copy of **Wombag** and download the latest version from the Github release page:
 
-    Work in Progress
+    Work in Progress. Please git clone this project for now and build your own binary. While we work on a release process.
 
 If everything worked according to plan, you should now have a new installation of the latest **Wombag**.
 
-### Use supervisord to run **Wombag** as a service ###
+### Add your first user with **wombagcli** ###
 
-Now we want to make sure that **Wombag** runs forever. First install the required software:
+Run these in a terminal
+
+    > wombagcli user add testuser testpassword
+    > wombagcli device add testdevice password testuser
+
+You can now authenticate with that device on **wombagd**
+
+
+### Use supervisord to run **wombagd** as a service ###
+
+Now we want to make sure that **wombagd** runs forever. First install the required software:
 
     sudo apt-get install supervisor
 
