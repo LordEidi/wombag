@@ -1,0 +1,10 @@
+[
+  {{range $key,$tag := .Tags}}
+    {
+        "slug":"{{ $tag.Slug }}",
+        "label":"{{ $tag.Label }}",
+        "id":{{ $tag.Id }}
+    },
+  {{end}}
+]
+
