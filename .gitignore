@@ -19,4 +19,4 @@ pkg/*
 
 # debug data
 /*.json/.GOPATH
-/bin
+
