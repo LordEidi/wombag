@@ -18,4 +18,5 @@ bin/log
 pkg/*
 
 # debug data
-/*.json
+/*.json/.GOPATH
+/bin

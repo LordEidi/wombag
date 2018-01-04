@@ -3,7 +3,7 @@ Wombag
 
 ![Wombag](https://raw.githubusercontent.com/LordEidi/wombag/master/wombag_logo.png)
 
-**Wombag** (c) 2017 by [SwordLord - the coding crew](https://www.swordlord.com/)
+**Wombag** (c) 2017-18 by [SwordLord - the coding crew](https://www.swordlord.com/)
 
 ## Introduction ##
 
@@ -30,12 +30,12 @@ If you are looking for a lightweight service to store and manage websites and li
 
 **Wombag** is still under development:
 
-- the Wallabag v2 API is about 80% supported for now (PUT, GET, DELETE, PATCH Entries. No such things as Attributes and Tags yet. But we are working on it).
+- the Wallabag v2 API is about 85% supported for now (PUT, GET, DELETE, PATCH Entries, a little bit of Tags. No such things as Attributes yet. But they are a bit special on the Wallabag API anyway. They have a different entry point to the rest, as example).
 - there is also no such thing as multi-user support. While you can configure multiple users and devices, all those users will see the same data. This is definitely a planned feature, but not yet done (you might help out, if you need this quicker).
 - **Wombag** will not have a web UI for a while (isn't planned, but never say never). But there is our CLI interface which helps you in managing your data and users.
 - **Wombag** does not support TLS on its own. Make sure to have a proxy like Nginx in front of Wombag for that. See below for configuration hints on that.
 
-We use **Wombag** with the iOS and Firefox Wallabag Apps. YMMV if you use different clients.
+We mostly test and use **Wombag** with the Firefox Wallabag App as well as with [Wallabag Pro](https://itunes.apple.com/gb/app/wallabag-pro/id1187619443) on iOS. YMMV if you use different clients.
 
 
 ## Installation ##
