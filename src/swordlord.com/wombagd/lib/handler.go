@@ -5,7 +5,7 @@ package lib
  **
  ** the alternative, native backend for your Wallabag apps
  **
- ** Copyright 2017 by SwordLord - the coding crew - http://www.swordlord.com
+ ** Copyright 2017-18 by SwordLord - the coding crew - http://www.swordlord.com
  ** and contributing authors
  **
  ** This program is free software; you can redistribute it and/or modify it
@@ -76,7 +76,6 @@ func getNewOAuth2() oAuth2 {
 
 	return oa
 }
-
 
 func OnRoot(c *gin.Context){
 
@@ -217,7 +216,19 @@ func OnDeleteTagOnEntry(c *gin.Context){
 
 func OnRetrieveAllTags(c *gin.Context){
 
-	c.JSON(501, gin.H{"message": "This function is not implemented yet"})
+	filter := tablemodule.NewFilter()
+	// This will infer what binder to use depending on the content-type header.
+	err := c.Bind(&filter)
+
+	if err != nil {
+		fmt.Printf("Error when binding %v\n", err)
+		c.JSON(300, gin.H{"error": err})
+	}
+
+	tags := render.TagsJSON{}
+	tags.Tags = tablemodule.GetTagsTyped(&filter)
+
+	c.Render(200, tags)
 }
 
 func OnRemoveTagFromEveryEntry(c *gin.Context){

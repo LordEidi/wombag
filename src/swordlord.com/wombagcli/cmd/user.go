@@ -6,7 +6,7 @@ package cmd
  **
  ** the alternative, native backend for your Wallabag apps
  **
- ** Copyright 2017 by SwordLord - the coding crew - http://www.swordlord.com
+ ** Copyright 2017-18 by SwordLord - the coding crew - http://www.swordlord.com
  ** and contributing authors
  **
  ** This program is free software; you can redistribute it and/or modify it
@@ -50,21 +50,21 @@ var userListCmd = &cobra.Command{
 }
 
 var userAddCmd = &cobra.Command{
-	Use:   "add [user] [password]",
-	Short: "Add new user to this instance of gohjasmin.",
-	Long: `Add new user to this instance of gohjasmin.`,
+	Use:   "add [username] [password]",
+	Short: "Add new user to this instance of Wombag.",
+	Long: `Add new user to this instance of Wombag.`,
 	RunE: AddUser,
 }
 
 var userUpdateCmd = &cobra.Command{
-	Use:   "update [user] [password]",
+	Use:   "update [userid] [password]",
 	Short: "Update the password of the user.",
 	Long: `Update the password of the user.`,
 	RunE: UpdateUser,
 }
 
 var userDeleteCmd = &cobra.Command{
-	Use:   "delete [user]",
+	Use:   "delete [userid]",
 	Short: "Deletes a user and all of her devices.",
 	Long: `Deletes a user and all of his or her devices.`,
 	RunE: DeleteUser,
@@ -80,7 +80,7 @@ func ListUser(cmd *cobra.Command, args []string) error {
 func AddUser(cmd *cobra.Command, args []string) error {
 
 	if len(args) < 2 {
-		er("command 'add' needs a user and a password")
+		er("command 'add' needs a user name and a password")
 	} else {
 		tablemodule.AddUser(args[0], args[1])
 	}
@@ -91,7 +91,7 @@ func AddUser(cmd *cobra.Command, args []string) error {
 func UpdateUser(cmd *cobra.Command, args []string) error {
 
 	if len(args) < 2 {
-		er("command 'update' needs a user and a new password")
+		er("command 'update' needs a user identification and a new password")
 	} else {
 		tablemodule.UpdateUser(args[0], args[1])
 	}
@@ -102,7 +102,7 @@ func UpdateUser(cmd *cobra.Command, args []string) error {
 func DeleteUser(cmd *cobra.Command, args []string) error {
 
 	if len(args) < 1 {
-		er("command 'delete' needs a user")
+		er("command 'delete' needs a user identification")
 	} else {
 		tablemodule.DeleteUser(args[0])
 	}

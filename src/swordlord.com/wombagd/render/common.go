@@ -8,7 +8,7 @@ import "net/http"
  **
  ** the alternative, native backend for your Wallabag apps
  **
- ** Copyright 2017 by SwordLord - the coding crew - http://www.swordlord.com
+ ** Copyright 2017-18 by SwordLord - the coding crew - http://www.swordlord.com
  ** and contributing authors
  **
  ** This program is free software; you can redistribute it and/or modify it

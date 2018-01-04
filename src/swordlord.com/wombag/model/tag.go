@@ -1,4 +1,4 @@
-package wombag
+package model
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -29,50 +29,13 @@ package wombag
  **
 -----------------------------------------------------------------------------*/
 import (
-	"github.com/jinzhu/gorm"
-	"log"
-	"swordlord.com/wombag/model"
 	"time"
 )
 
-var db gorm.DB
-
-func InitDatabase() {
-
-	dialect := GetStringFromConfig("db.dialect")
-	args := GetStringFromConfig("db.args")
-
-	database, err := gorm.Open(dialect, args)
-	if err != nil {
-		log.Fatalf("failed to connect database, %s", err)
-		panic("failed to connect database")
-	}
-
-	gorm.DefaultCallback.Update().Register("update_upd_dat", updateCreated)
-
-	db = *database
-
-	db.SingularTable(true)
-	db.LogMode(true)
-
-	db.AutoMigrate(&model.User{})
-	db.AutoMigrate(&model.Device{})
-	db.AutoMigrate(&model.Entry{})
-	db.AutoMigrate(&model.Tag{})
-}
-
-func updateCreated(scope *gorm.Scope) {
-	if scope.HasColumn("UpdDat") {
-		scope.SetColumn("UpdDat", time.Now())
-	}
-}
-
-func CloseDB() {
-
-	db.Close()
-}
-
-func GetDB() *gorm.DB {
-
-	return &db
+type Tag struct {
+	Id    string `gorm:"primary_key"`
+	Slug 	string
+	Label	string
+	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`
+	UpdDat	time.Time `sql:"DEFAULT:current_timestamp"`
 }

@@ -31,100 +31,97 @@ package cmd
 -----------------------------------------------------------------------------*/
 import (
 	"github.com/spf13/cobra"
+	"strconv"
 	"swordlord.com/wombag/tablemodule"
 )
 
 // domainCmd represents the domain command
-var deviceCmd = &cobra.Command{
-	Use:   "device",
+var tagCmd = &cobra.Command{
+	Use:   "tag",
 	Short: "Add, change and manage devices of your users.",
 	Long: `Add, change and manage devices of your users. Requires a subcommand.`,
 	RunE: nil,
 }
 
-var deviceListCmd = &cobra.Command{
+var tagListCmd = &cobra.Command{
 	Use:   "list",
 	Short: "List all devices.",
 	Long: `List all devices.`,
-	RunE: ListDevices,
+	RunE: ListTags,
 }
 
-var deviceAddCmd = &cobra.Command{
+var tagAddCmd = &cobra.Command{
 	Use:   "add [device] [password] [user]",
 	Short: "Add new device to given user.",
 	Long: `Add new device to given user.`,
-	RunE: AddDevice,
+	RunE: AddTag,
 }
 
-var deviceUpdateCmd = &cobra.Command{
+var tagUpdateCmd = &cobra.Command{
 	Use:   "update [device] [password]",
 	Short: "Update the password of the device.",
 	Long: `Update the password of the device.`,
-	RunE: UpdateDevice,
+	RunE: UpdateTag,
 }
 
-var deviceDeleteCmd = &cobra.Command{
+var tagDeleteCmd = &cobra.Command{
 	Use:   "delete [device]",
 	Short: "Deletes a device.",
 	Long: `Deletes a device.`,
-	RunE: DeleteDevice,
+	RunE: DeleteTag,
 }
 
-func ListDevices(cmd *cobra.Command, args []string) error {
+func ListTags(cmd *cobra.Command, args []string) error {
 
-	tablemodule.ListDevice()
+	tablemodule.ListTags()
 
 	return nil
 }
 
-func AddDevice(cmd *cobra.Command, args []string) error {
-
-	if len(args) != 3 {
-		er("command 'add' needs a device, password and user")
-	} else {
-		tablemodule.AddDevice(args[0], args[1], args[2])
-	}
-
-	return nil
-}
-
-func UpdateDevice(cmd *cobra.Command, args []string) error {
+func AddTag(cmd *cobra.Command, args []string) error {
 
 	if len(args) != 2 {
-		er("command 'update' needs a device and a new password")
+		er("command 'add' needs a tag label and slug")
 	} else {
-		tablemodule.UpdateDevice(args[0], args[1])
+		tablemodule.AddTag(args[0], args[1])
 	}
 
 	return nil
 }
 
-func DeleteDevice(cmd *cobra.Command, args []string) error {
+func UpdateTag(cmd *cobra.Command, args []string) error {
+
+	if len(args) != 3 {
+		er("command 'update' needs a tag id, a new label and new slug")
+	} else {
+		id, err := strconv.Atoi(args[0])
+
+		if err != nil {
+			return err
+		}
+
+		tablemodule.UpdateTag(uint(id), args[1], args[2])
+	}
+
+	return nil
+}
+
+func DeleteTag(cmd *cobra.Command, args []string) error {
 
 	if len(args) < 1 {
-		er("command 'delete' needs a device Id")
+		er("command 'delete' needs a tag Id")
 	} else {
-		tablemodule.DeleteDevice(args[0])
+		tablemodule.DeleteTag(args[0])
 	}
 
 	return nil
 }
 
 func init() {
-	RootCmd.AddCommand(deviceCmd)
+	RootCmd.AddCommand(tagCmd)
 
-	deviceCmd.AddCommand(deviceListCmd)
-	deviceCmd.AddCommand(deviceAddCmd)
-	deviceCmd.AddCommand(deviceUpdateCmd)
-	deviceCmd.AddCommand(deviceDeleteCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// domainCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// domainCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	deviceCmd.AddCommand(tagListCmd)
+	deviceCmd.AddCommand(tagAddCmd)
+	deviceCmd.AddCommand(tagUpdateCmd)
+	deviceCmd.AddCommand(tagDeleteCmd)
 }

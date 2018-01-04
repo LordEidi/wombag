@@ -1,4 +1,4 @@
-package wombag
+package render
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -28,51 +28,43 @@ package wombag
  ** LordLightningBolt@swordlord.com
  **
 -----------------------------------------------------------------------------*/
+
 import (
-	"github.com/jinzhu/gorm"
-	"log"
+	"fmt"
+	"net/http"
 	"swordlord.com/wombag/model"
-	"time"
+	"text/template"
 )
 
-var db gorm.DB
+type TagsJSON struct {
+	Tags []model.Tag
+}
 
-func InitDatabase() {
+func (r TagsJSON) Render(w http.ResponseWriter) (err error) {
 
-	dialect := GetStringFromConfig("db.dialect")
-	args := GetStringFromConfig("db.args")
+	if err = writeTagsJSON(w, r); err != nil {
+		fmt.Printf("Error while rendering %v\n", err)
+	}
+	return
+}
 
-	database, err := gorm.Open(dialect, args)
+func (r TagsJSON) WriteContentType(w http.ResponseWriter) {
+	writeContentType(w, jsonContentType)
+}
+
+func writeTagsJSON(w http.ResponseWriter, tags TagsJSON) error {
+
+	var t *template.Template
+
+	writeContentType(w, jsonContentType)
+
+	t = template.Must(template.New("tags.tmpl").ParseFiles("./templates/tags.tmpl"))
+
+	err := t.Execute(w, tags)
+
 	if err != nil {
-		log.Fatalf("failed to connect database, %s", err)
-		panic("failed to connect database")
+		return err
 	}
 
-	gorm.DefaultCallback.Update().Register("update_upd_dat", updateCreated)
-
-	db = *database
-
-	db.SingularTable(true)
-	db.LogMode(true)
-
-	db.AutoMigrate(&model.User{})
-	db.AutoMigrate(&model.Device{})
-	db.AutoMigrate(&model.Entry{})
-	db.AutoMigrate(&model.Tag{})
-}
-
-func updateCreated(scope *gorm.Scope) {
-	if scope.HasColumn("UpdDat") {
-		scope.SetColumn("UpdDat", time.Now())
-	}
-}
-
-func CloseDB() {
-
-	db.Close()
-}
-
-func GetDB() *gorm.DB {
-
-	return &db
+	return nil
 }
