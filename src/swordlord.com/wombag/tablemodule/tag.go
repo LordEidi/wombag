@@ -47,7 +47,7 @@ func ListTags() {
 
 	for _, tag := range rows {
 
-		tags = append(tags, []string{tag.Id, tag.Slug, tag.Label, tag.CrtDat.Format("2006-01-02 15:04:05"), tag.UpdDat.Format("2006-01-02 15:04:05")})
+		tags = append(tags, []string{string(tag.Id), tag.Slug, tag.Label, tag.CrtDat.Format("2006-01-02 15:04:05"), tag.UpdDat.Format("2006-01-02 15:04:05")})
 	}
 
 	wombag.WriteTable([]string{"Id", "Slug", "Label", "CrtDat", "UpdDat"}, tags)
@@ -99,29 +99,60 @@ func UpdateTag(id uint, label string, slag string) {
 }
 
 // TODO: function to remove tag from one entry, or from all (or some)
-func DeleteTag(id string) {
+func DeleteTag(tagId uint) {
 
 	db := wombag.GetDB()
 
 	tag := &model.Tag{}
 
-	retDB := db.Where("id = ?", id).First(&tag)
+	retDB := db.Where("id = ?", tagId).First(&tag)
 
 	if retDB.Error != nil {
-		log.Printf("Error with Tag %q: %s\n", id, retDB.Error)
+		log.Printf("Error with Tag %q: %s\n", tagId, retDB.Error)
 		log.Fatal(retDB.Error)
 		return
 	}
 
 	if retDB.RowsAffected <= 0 {
 		log.Printf("Tag not found: %s\n", tag)
-		log.Fatal("Tag not found: " + id + "\n")
+		//log.Fatal("Tag not found: " + tagId + "\n")
 		return
 	}
 
-	log.Printf("Deleting Tag: %s", &tag.Id)
+	DeleteEntryTag(tag.Id)
+
+	log.Printf("Deleting Tag: %s", tag.Id)
 
 	db.Delete(&tag)
 
-	fmt.Printf("Tag %s deleted.\n", id)
+	fmt.Printf("Tag %s deleted.\n", tagId)
+}
+
+func DeleteTagBySlug(slug string) {
+
+	db := wombag.GetDB()
+
+	tag := &model.Tag{}
+
+	retDB := db.Where("slug = ?", slug).First(&tag)
+
+	if retDB.Error != nil {
+		log.Printf("Error with Tag %q: %s\n", slug, retDB.Error)
+		log.Fatal(retDB.Error)
+		return
+	}
+
+	if retDB.RowsAffected <= 0 {
+		log.Printf("Tag not found: %s\n", tag)
+		log.Fatal("Tag not found: " + slug + "\n")
+		return
+	}
+
+	DeleteEntryTag(tag.Id)
+
+	log.Printf("Deleting Tag: %s", tag.Id)
+
+	db.Delete(&tag)
+
+	fmt.Printf("Tag %s deleted.\n", slug)
 }

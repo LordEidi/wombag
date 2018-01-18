@@ -1,4 +1,4 @@
-package model
+package render
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -28,14 +28,13 @@ package model
  ** LordLightningBolt@swordlord.com
  **
 -----------------------------------------------------------------------------*/
+
 import (
-	"time"
+	"net/http"
 )
 
-type Tag struct {
-	Id    uint `gorm:"primary_key"`
-	Slug 	string
-	Label	string
-	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`
-	UpdDat	time.Time `sql:"DEFAULT:current_timestamp"`
+type Render interface {
+	Render(w http.ResponseWriter) error
+	WriteContentType(w http.ResponseWriter)
 }
+

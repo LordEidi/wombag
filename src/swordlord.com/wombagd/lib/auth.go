@@ -29,14 +29,72 @@ package lib
  **
 -----------------------------------------------------------------------------*/
 import (
+	"context"
 	"github.com/gin-gonic/gin"
 	"log"
+	"net/http"
 	"strings"
 	"swordlord.com/wombag/tablemodule"
 )
 
 const AuthIsAuthenticated = "isauthenticated"
 const AuthUser = "username"
+
+
+// Middleware to check for Bearer Header
+func OAuthMiddleware(rw http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
+
+	// this is a bit of a hack, since the mux did not behave as expected...
+	if !strings.HasPrefix(req.URL.Path, "/api"){
+
+		next(rw, req)
+		return
+	}
+
+	authHeader := req.Header.Get("Authorization")
+	if authHeader == "" {
+
+		log.Printf("There is neither an authorization header nor an access token in the URL.\n" )
+		http.Error(rw, "Access not authorised", 401)
+		return
+	}
+
+	ahElements := strings.Split(authHeader, " ")
+	if len(ahElements) != 2 {
+		log.Printf("There is an authorization header but with wrong format: %s.\n", authHeader )
+		http.Error(rw, "Access not authorised", 401)
+		return
+	}
+
+	if ahElements[0] == "Bearer" {
+
+		validateOAuthToken(ahElements[1], rw, req, next)
+
+	} else {
+
+		log.Printf("There is an authorization header but with wrong format: %s.\n", authHeader )
+		http.Error(rw, "Access not authorised", 401)
+	}
+}
+
+func validateOAuthToken(accToken string, rw http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
+
+	device, err := tablemodule.ValidateAccessTokenInDB(accToken)
+
+	if err == nil {
+
+		ctx := req.Context()
+		ctx = context.WithValue(ctx, AuthIsAuthenticated, true)
+		ctx = context.WithValue(ctx, AuthUser, device.User)
+
+		// we need to forward the context
+		next(rw, req.WithContext(ctx))
+	} else {
+
+		log.Printf("Wrong AccessToken. Access denied.\n" )
+		http.Error(rw, "Access not authorised", 401)
+	}
+}
 
 // Middleware to check for Bearer Header
 func ServiceOAuth() gin.HandlerFunc {
@@ -45,14 +103,6 @@ func ServiceOAuth() gin.HandlerFunc {
 
 		authHeader := c.Request.Header.Get("Authorization")
 		if authHeader == "" {
-
-			// test the URL instead, this is a Hack for apps which think they should
-			// put the access token into the URL...
-			accessTokenUrl := c.Request.URL.Query().Get("access_token")
-			if accessTokenUrl != "" {
-				validateAccessToken(accessTokenUrl, c)
-				return
-			}
 
 			log.Printf("There is neither an authorization header nor an access token in the URL.\n" )
 			c.AbortWithStatusJSON(401, gin.H{ "message": "Access not authorised"})

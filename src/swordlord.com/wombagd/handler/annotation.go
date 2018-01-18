@@ -1,4 +1,4 @@
-package lib
+package handler
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -29,44 +29,26 @@ package lib
  **
 -----------------------------------------------------------------------------*/
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/stretchr/testify/assert"
 	"net/http"
-	"net/http/httptest"
-	"testing"
+	"swordlord.com/wombagd/respond"
 )
 
-func performRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
-	req, _ := http.NewRequest(method, path, nil)
-	w := httptest.NewRecorder()
-	r.ServeHTTP(w, req)
-	return w
+func OnRemoveAnnotation(w http.ResponseWriter, req *http.Request){
+
+	respond.NotImplementedYet(w)
 }
 
-func TestRouteOK(t *testing.T) {
+func OnUpdateAnnotation(w http.ResponseWriter, req *http.Request){
 
-	checkRouteOK("GET", t)
+	respond.NotImplementedYet(w)
 }
 
-func checkRouteOK(method string, t *testing.T) {
-	passed := false
-	passedAny := false
-	r := gin.New()
-	r.Any("/test2", func(c *gin.Context) {
-		passedAny = true
-	})
-	r.Handle(method, "/test", func(c *gin.Context) {
-		passed = true
-	})
+func OnRetrieveAnnotation(w http.ResponseWriter, req *http.Request){
 
-	w := performRequest(r, method, "/test")
-	assert.True(t, passed)
-	assert.Equal(t, w.Code, http.StatusOK)
-
-	performRequest(r, method, "/test2")
-	assert.True(t, passedAny)
+	respond.NotImplementedYet(w)
 }
 
+func OnCreateNewAnnotation(w http.ResponseWriter, req *http.Request){
 
-
-
+	respond.NotImplementedYet(w)
+}

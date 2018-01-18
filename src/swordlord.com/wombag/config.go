@@ -30,6 +30,7 @@ package wombag
 -----------------------------------------------------------------------------*/
 import (
 	"github.com/spf13/viper"
+	"io/ioutil"
 	"log"
 	"fmt"
 )
@@ -51,7 +52,7 @@ func InitConfig() {
 	viper.AddConfigPath(".")
 	viper.AddConfigPath("$HOME/config")
 	// And then register config file name (no extension)
-	viper.SetConfigName("config")
+	viper.SetConfigName("wombag.config")
 	// Optionally we can set specific config type
 	viper.SetConfigType("json")
 
@@ -63,8 +64,14 @@ func InitConfig() {
 
 	// Find and read the config file
 	if err := viper.ReadInConfig(); err != nil {
-		// TODO: don't crash, write a standard config file and move on...
-		log.Fatalf("Error reading config file, %s", err)
+
+		// TODO: don't just overwrite, check for existence first, then write a standard config file and move on...
+		WriteStandardConfig()
+
+		if err := viper.ReadInConfig(); err != nil {
+			// we tried it once, crash now
+				log.Fatalf("Error reading config file, %s", err)
+		}
 	}
 
 	// Confirm which config file is used
@@ -74,6 +81,8 @@ func InitConfig() {
 
 	// Confirm which config file is used
 	fmt.Printf("Env set to: %s\n", env)
+
+	EnsureTemplateFilesExist()
 }
 
 func GetStringFromConfig(key string) string {
@@ -86,3 +95,29 @@ func GetEnv() string {
 	return env
 }
 
+//
+func WriteStandardConfig() (error) {
+
+	err := ioutil.WriteFile("wombag.config.json", defaultConfig, 0700)
+
+	return err
+}
+
+var defaultConfig = []byte("{\n" +
+	"\t\"env\": \"dev\",\n" +
+	"\t\"add_demo_users\": \"true\",\n" +
+	"\t\"www\": {\n" +
+	"\t\t\"host\": \"0.0.0.0\",\n" +
+	"\t\t\"port\": \"8081\"\n" +
+	"\t},\n" +
+	"\t\"db\": {\n" +
+	"\t\t\"dialect\": \"sqlite3\",\n" +
+	"\t\t\"args\": \"wombag.db\"\n" +
+	"\t},\n" +
+	"\t\"templates\": {\n" +
+	"\t\t\"auth\": \"./templates/auth.tmpl\",\n" +
+	"\t\t\"entries\": \"./templates/entries.tmpl\",\n" +
+	"\t\t\"entry\": \"./templates/entry.tmpl\",\n" +
+	"\t\t\"tags\": \"./templates/tags.tmpl\"\n" +
+	"\t}\n" +
+	"}")

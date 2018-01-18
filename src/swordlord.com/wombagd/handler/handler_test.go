@@ -1,4 +1,4 @@
-package model
+package handler
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -29,13 +29,44 @@ package model
  **
 -----------------------------------------------------------------------------*/
 import (
-	"time"
+	"github.com/gin-gonic/gin"
+	"github.com/stretchr/testify/assert"
+	"net/http"
+	"net/http/httptest"
+	"testing"
 )
 
-type Tag struct {
-	Id    uint `gorm:"primary_key"`
-	Slug 	string
-	Label	string
-	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`
-	UpdDat	time.Time `sql:"DEFAULT:current_timestamp"`
+func performRequest(r http.Handler, method, path string) *httptest.ResponseRecorder {
+	req, _ := http.NewRequest(method, path, nil)
+	w := httptest.NewRecorder()
+	r.ServeHTTP(w, req)
+	return w
 }
+
+func TestRouteOK(t *testing.T) {
+
+	checkRouteOK("GET", t)
+}
+
+func checkRouteOK(method string, t *testing.T) {
+	passed := false
+	passedAny := false
+	r := gin.New()
+	r.Any("/test2", func(c *gin.Context) {
+		passedAny = true
+	})
+	r.Handle(method, "/test", func(c *gin.Context) {
+		passed = true
+	})
+
+	w := performRequest(r, method, "/test")
+	assert.True(t, passed)
+	assert.Equal(t, w.Code, http.StatusOK)
+
+	performRequest(r, method, "/test2")
+	assert.True(t, passedAny)
+}
+
+
+
+

@@ -30,11 +30,12 @@ package main
 -----------------------------------------------------------------------------*/
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
+	"github.com/gorilla/mux"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/urfave/negroni"
 	"net/http"
-	"net/http/pprof"
 	"swordlord.com/wombag"
+	"swordlord.com/wombagd/handler"
 	"swordlord.com/wombagd/lib"
 )
 
@@ -49,45 +50,54 @@ func main() {
 
 	env := wombag.GetStringFromConfig("env")
 
+	n := negroni.New(negroni.NewRecovery(), negroni.HandlerFunc(lib.OAuthMiddleware), negroni.NewLogger())
+
+	gr := mux.NewRouter().StrictSlash(false)
+
+	n.UseHandler(gr)
+
+	/*
 	if env != "dev" {
 		gin.SetMode(gin.ReleaseMode)
 	}
-
-	r := gin.Default()
+	*/
 
 	// what to do when a user hits the root
-	r.GET("/", lib.OnRoot)
+	gr.HandleFunc("/", handler.OnRoot).Methods("GET")
 
-	// group to wrap all services which need authentication (authentication bearer http header)
-	api := r.Group("/api/", lib.ServiceOAuth())
+	gr.HandleFunc("/annotations/{annotation}", handler.OnRemoveAnnotation).Methods("DELETE")
+	gr.HandleFunc("/annotations/{annotation}", handler.OnUpdateAnnotation).Methods("PUT")
+	gr.HandleFunc("/annotations/{annotation}", handler.OnRetrieveAnnotation).Methods("GET")
+	gr.HandleFunc("/annotations/{annotation}", handler.OnCreateNewAnnotation).Methods("POST")
 
-	api.DELETE("/annotations/:annotation", lib.OnRemoveAnnotation) // DELETE
-	api.PUT("/annotations/:annotation", lib.OnUpdateAnnotation) // PUT
-	api.GET("/annotations/:annotation", lib.OnRetrieveAnnotation) // GET
-	api.POST("/annotations/:entry", lib.OnCreateNewAnnotation) // POST
-	api.GET("/entries", lib.OnRetrieveEntries) // GET
-	api.GET("/entries.json", lib.OnRetrieveEntries) // GET
-	api.POST("/entries/", lib.OnCreateEntry) // POST
-	api.POST("/entries.json", lib.OnCreateEntry) // POST
-	api.DELETE("/entries/:entry", lib.OnDeleteEntry) // DELETE
-	api.GET("/entries/:entry", lib.OnGetEntry) // GET
-	api.PATCH("/entries/:entry", lib.OnChangeEntry) // PATCH
-	api.GET("/entries/:entry/export", lib.OnGetEntryFormatted) // GET
-	api.PATCH("/entries/:entry/reload", lib.OnReloadEntry) // PATCH
-	api.GET("/entries/:entry/tags", lib.OnRetrieveTagsForEntry) // GET
-	api.POST("/entries/:entry/tags", lib.OnAddTagsToEntry) // POST
-	api.DELETE("/entries/:entry/tags/:tag", lib.OnDeleteTagsOnEntry) // DELETE
-	api.DELETE("/tag/label", lib.OnDeleteTagOnEntry) // DELETE
-	api.GET("/tags", lib.OnRetrieveAllTags) // GET
-	api.GET("/tags.json", lib.OnRetrieveAllTags) // GET
+	gr.HandleFunc("/oauth/v2/token", handler.OnOAuth).Methods("POST")
+
+	// and now group the
+	api := gr.PathPrefix("/api").Subrouter()
+
+	api.HandleFunc("/entries{ext:(?:.json|.txt|.xml)?}", handler.OnRetrieveEntries).Methods("GET")
+	//api.HandleFunc("/entries.json", handler.OnRetrieveEntries).Methods("GET")
+	api.HandleFunc("/entries{ext:(?:.json|.txt|.xml)?}", handler.OnCreateEntry).Methods("POST")
+	//api.HandleFunc("/entries.json", handler.OnCreateEntry).Methods("POST")
+	api.HandleFunc("/entries/{entry:[0-9]+}", handler.OnDeleteEntry).Methods("DELETE")
+	api.HandleFunc("/entries/{entry:[0-9]+}", handler.OnGetEntry).Methods("GET")
+	api.HandleFunc("/entries/{entry:[0-9]+}", handler.OnChangeEntry).Methods("PATCH")
+	api.HandleFunc("/entries/{entry:[0-9]+}/export", handler.OnGetEntryFormatted).Methods("GET")
+	api.HandleFunc("/entries/{entry:[0-9]+}/reload", handler.OnReloadEntry).Methods("PATCH")
+	api.HandleFunc("/entries/{entry:[0-9]+}/tags{ext:(?:.json)?}", handler.OnGetTagsForEntry).Methods("GET")
+	api.HandleFunc("/entries/{entry:[0-9]+}/tags{ext:(?:.json)?}", handler.OnAddTagsToEntry).Methods("POST")
+	api.HandleFunc("/entries/{entry:[0-9]+}/tags/{tag:[a-z]+}", handler.OnDeleteTagOnEntry).Methods("DELETE")
+	api.HandleFunc("/tag/label", handler.OnDeleteTagOnEntriesBySlug).Methods("DELETE")
+	api.HandleFunc("/tags{ext:(?:.json|.txt|.xml)?}", handler.OnRetrieveAllTags).Methods("GET")
+	//api.HandleFunc("/tags.json", handler.OnRetrieveAllTags).Methods("GET")
 	// this one does not like the one below, sine both have the same path, left here for completeness of the API
-	// api.DELETE("/tags/label", lib.OnRemoveTagsFromEveryEntry) // DELETE
-	api.DELETE("/tags/:tag", lib.OnRemoveTagFromEveryEntry) // DELETE
-	api.GET("/version", lib.OnRetrieveVersionNumber) // GET
-	api.GET("/version.html", lib.OnRetrieveVersionNumber) // GET
+	//api.HandleFunc("/tags/label", handler.OnRemoveTagsFromEveryEntry).Methods("DELETE")
+	api.HandleFunc("/tags/:tag", handler.OnDeleteTagOnEntriesById).Methods("DELETE")
+	api.HandleFunc("/version{ext:(?:.json|.txt|.xml|.html)?}", handler.OnRetrieveVersionNumber).Methods("GET")
+	//api.HandleFunc("/version.html", handler.OnRetrieveVersionNumber).Methods("GET")
+	//api.HandleFunc("/version.txt", handler.OnRetrieveVersionNumber).Methods("GET")
 
-	// endpoint which is used to ask for a access token
-	r.POST("/oauth/v2/token", lib.OnOAuth)
+	api.HandleFunc("/entries/{entry:[0-9]+}{ext:(?:.json|.txt|.xml)?}", handler.OnGetEntry).Methods("GET")
 
 	// TODO set a bypass function when no path triggers
 	//r.GET('/', onHitRoot);
@@ -99,12 +109,15 @@ func main() {
 	if env == "dev" {
 
 		// give the user the possibility to trace and profile the app
+		/*
+		TODO RE ADD
 		r.GET("/debug/pprof/block", pprofHandler(pprof.Index))
 		r.GET("/debug/pprof/heap", pprofHandler(pprof.Index))
 		r.GET("/debug/pprof/profile", pprofHandler(pprof.Profile))
 		r.POST("/debug/pprof/symbol", pprofHandler(pprof.Symbol))
 		r.GET("/debug/pprof/symbol", pprofHandler(pprof.Symbol))
 		r.GET("/debug/pprof/trace", pprofHandler(pprof.Trace))
+		*/
 
 		// give the user some hints on what URLs she could test
 		fmt.Printf("wombagd running on %v:%v\n", host, port)
@@ -118,12 +131,15 @@ func main() {
 	}
 
 	// have fun with wombagd
-	r.Run(host + ":" + port)
+	http.ListenAndServe(host + ":" + port, n)
 }
 
-func pprofHandler(h http.HandlerFunc) gin.HandlerFunc {
-	handler := http.HandlerFunc(h)
-	return func(c *gin.Context) {
-		handler.ServeHTTP(c.Writer, c.Request)
-	}
+/*
+func pprofHandler(h http.HandlerFunc) negroni.HandlerFunc {
+handler := http.HandlerFunc(h)
+return func(c *gin.Context) {
+	handler.ServeHTTP(c.Writer, c.Request)
 }
+
+}
+*/

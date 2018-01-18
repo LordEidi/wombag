@@ -32,10 +32,14 @@ import (
 	"time"
 )
 
-type Tag struct {
-	Id    uint `gorm:"primary_key"`
-	Slug 	string
-	Label	string
+// TODO: Add CrtUsr and UpdUsr
+type EntryTag struct {
+	EntryTagId	uint `gorm:"primary_key"`
+	EntryId	uint
+	Entry Entry `gorm:"ForeignKey:EntryId"`
+	TagId 	uint
+	Tag Tag `gorm:"ForeignKey:TagId"`
 	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`
 	UpdDat	time.Time `sql:"DEFAULT:current_timestamp"`
 }
+

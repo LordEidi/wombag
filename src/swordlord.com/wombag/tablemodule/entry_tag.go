@@ -1,4 +1,4 @@
-package model
+package tablemodule
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -29,13 +29,52 @@ package model
  **
 -----------------------------------------------------------------------------*/
 import (
-	"time"
+	"log"
+	"swordlord.com/wombag"
+	"swordlord.com/wombag/model"
 )
 
-type Tag struct {
-	Id    uint `gorm:"primary_key"`
-	Slug 	string
-	Label	string
-	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`
-	UpdDat	time.Time `sql:"DEFAULT:current_timestamp"`
+func GetTagsPerEntry(entryId uint) []model.EntryTag {
+
+	var rows []model.EntryTag
+
+	query := wombag.GetDB()
+
+	query.Where("Id=?", entryId)
+
+	return rows
+}
+
+func AddTagsToEntry() {
+
+	// tags 	string 	false 	tag1,tag2,tag3 	a comma-separated list of tags.
+}
+
+// TODO: function to remove tag from one entry, or from all (or some)
+func DeleteTagPerEntry(entryID uint, tagID uint) {
+
+	db := wombag.GetDB()
+
+	retDB := db.Where("EntryID = ? AND TagID = ", entryID, tagID).Delete(model.EntryTag{})
+
+	if retDB.Error != nil {
+		log.Fatal(retDB.Error)
+		return
+	}
+
+	log.Printf("Rows affected: %s\n", retDB.RowsAffected)
+}
+
+func DeleteEntryTag(tagId uint) {
+
+	db := wombag.GetDB()
+
+	retDB := db.Where("TagID = ", tagId).Delete(model.EntryTag{})
+
+	if retDB.Error != nil {
+		log.Fatal(retDB.Error)
+		return
+	}
+
+	log.Printf("Rows affected: %s\n", retDB.RowsAffected)
 }

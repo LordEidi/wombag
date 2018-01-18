@@ -42,6 +42,8 @@ import (
 
 func NewFilter() Filter {
 	filter := Filter{}
+	filter.PerPage = 30
+	filter.Page = 1
 	filter.Starred = -1
 	filter.Archive = -1
 	return filter

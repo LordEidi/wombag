@@ -1,4 +1,4 @@
-package model
+package respond
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -29,13 +29,50 @@ package model
  **
 -----------------------------------------------------------------------------*/
 import (
-	"time"
+	"fmt"
+	"net/http"
+	"swordlord.com/wombagd/render"
 )
 
-type Tag struct {
-	Id    uint `gorm:"primary_key"`
-	Slug 	string
-	Label	string
-	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`
-	UpdDat	time.Time `sql:"DEFAULT:current_timestamp"`
+func Render(w http.ResponseWriter, status int, r render.Render){
+
+	w.WriteHeader(status)
+
+	if !bodyAllowedForStatus(status) {
+
+		r.WriteContentType(w)
+		return
+	}
+
+	if err := r.Render(w); err != nil {
+		panic(err)
+	}
+}
+
+// bodyAllowedForStatus is a copy of http.bodyAllowedForStatus non-exported function.
+func bodyAllowedForStatus(status int) bool {
+	switch {
+	case status >= 100 && status <= 199:
+		return false
+	case status == 204:
+		return false
+	case status == 304:
+		return false
+	}
+	return true
+}
+
+
+func NotImplementedYet(w http.ResponseWriter){
+
+	w.WriteHeader(http.StatusNotImplemented)
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintf(w, "This function is not implemented yet\n")
+}
+
+func WithMessage(w http.ResponseWriter, status int, message string){
+
+	w.WriteHeader(status)
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintf(w, message + "\n")
 }

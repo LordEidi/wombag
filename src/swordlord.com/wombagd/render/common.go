@@ -1,7 +1,5 @@
 package render
 
-import "net/http"
-
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -31,6 +29,10 @@ import "net/http"
  ** LordLightningBolt@swordlord.com
  **
 -----------------------------------------------------------------------------*/
+
+import (
+	"net/http"
+)
 
 var jsonContentType = []string{"application/json; charset=utf-8"}
 
