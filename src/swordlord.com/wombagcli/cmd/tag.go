@@ -111,7 +111,13 @@ func DeleteTag(cmd *cobra.Command, args []string) error {
 	if len(args) < 1 {
 		er("command 'delete' needs a tag Id")
 	} else {
-		tablemodule.DeleteTag(args[0])
+		id, err := strconv.Atoi(args[0])
+
+		if err != nil {
+			return err
+		}
+
+		tablemodule.DeleteTag(uint(id))
 	}
 
 	return nil

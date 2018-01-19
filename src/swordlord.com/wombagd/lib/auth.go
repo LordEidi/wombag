@@ -30,7 +30,6 @@ package lib
 -----------------------------------------------------------------------------*/
 import (
 	"context"
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"strings"
@@ -96,6 +95,7 @@ func validateOAuthToken(accToken string, rw http.ResponseWriter, req *http.Reque
 	}
 }
 
+/*
 // Middleware to check for Bearer Header
 func ServiceOAuth() gin.HandlerFunc {
 
@@ -143,3 +143,4 @@ func validateAccessToken(accToken string, c *gin.Context) {
 		c.AbortWithStatusJSON(401, gin.H{ "message": "Access not authorised"})
 	}
 }
+*/
