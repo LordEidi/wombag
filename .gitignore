@@ -4,6 +4,7 @@
 # database files
 *.sqlite
 *.sqlite3
+bin/*.db
 
 # mitmproxy flows
 *.flow
@@ -11,7 +12,6 @@
 # binaries
 bin/wombagd
 bin/wombagcli
-bin/*.db
 bin/log
 
 # packages
