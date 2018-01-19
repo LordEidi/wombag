@@ -29,15 +29,15 @@ package model
  **
 -----------------------------------------------------------------------------*/
 import (
+	"encoding/json"
+	"fmt"
 	"strings"
 	"time"
-	"encoding/json"
 )
 
 // TODO: Add CrtUsr and UpdUsr
 type Entry struct {
 	EntryId	uint `gorm:"primary_key"`
-	Id 	string
 	URL string
 	PreviewPic string
 	Domain string
@@ -46,7 +46,8 @@ type Entry struct {
 	Language string
 	MimeType string
 	PreviewPicture string
-	Tags string
+	Tags []Tag `gorm:"-"`
+	TagsAsString string `gorm:"-"`
 	Starred bool `sql:"NOT NULL;DEFAULT:false"`
 	Archived bool `sql:"NOT NULL;DEFAULT:false"`
 	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`
@@ -71,4 +72,34 @@ func (e Entry) GetTitleJSON() string {
 	// remove leading "
 	jsonified := string(b)
 	return strings.Trim(jsonified, "\"")
+}
+
+func (e Entry) GetTags() string {
+
+	// caching mechanism
+	if e.TagsAsString != "" {
+
+		if e.TagsAsString == "empty" {
+
+			return ""
+		} else {
+
+			return e.TagsAsString
+		}
+	}
+
+
+	//e.Tags = `{"id":12,"label":"dd","slug":"dd"}`
+
+	ret := ""
+
+	for _, tag := range e.Tags {
+
+		if len(ret) > 0 {
+			ret += ","
+		}
+		ret += fmt.Sprintf(`{"id":"%v","label":"%s","slug":"%s"}`, tag.TagId, tag.Label, tag.Slug)
+	}
+
+	return ret
 }

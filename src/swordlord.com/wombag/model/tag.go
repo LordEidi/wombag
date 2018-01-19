@@ -33,7 +33,7 @@ import (
 )
 
 type Tag struct {
-	Id    uint `gorm:"primary_key"`
+	TagId    uint `gorm:"primary_key"`
 	Slug 	string
 	Label	string
 	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`

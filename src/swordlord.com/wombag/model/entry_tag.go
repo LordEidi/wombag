@@ -36,9 +36,9 @@ import (
 type EntryTag struct {
 	EntryTagId	uint `gorm:"primary_key"`
 	EntryId	uint
-	Entry Entry `gorm:"ForeignKey:EntryId"`
+	Entry Entry `gorm:"ForeignKey:entry_id"`
 	TagId 	uint
-	Tag Tag `gorm:"ForeignKey:TagId"`
+	Tag Tag `gorm:"ForeignKey:tag_id"`
 	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`
 	UpdDat	time.Time `sql:"DEFAULT:current_timestamp"`
 }

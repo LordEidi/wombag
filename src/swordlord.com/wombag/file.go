@@ -1,5 +1,4 @@
 package wombag
-
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -85,7 +84,8 @@ var defTmplAuth = []byte(`{
     "token_type": "{{ .TokenType }}"
 }`)
 
-var defTmplEntry = []byte(`{
+var defTmplEntry = []byte(`
+    {
     "_links": {
         "self": {
             "href": "/api/entries/{{ .Entry.EntryId }}
@@ -93,15 +93,15 @@ var defTmplEntry = []byte(`{
     },
     "content": "{{ .Entry.GetContentJSON }}\n",
     "created_at": "{{ .Entry.CrtDat }}",
-    "domain_name": "www.numerama.com",
+    "domain_name": "{{ .Entry.Domain }}",
     "id": {{ .Entry.EntryId }},
     "is_archived": {{ .Entry.Archived }},
     "is_starred": {{ .Entry.Starred }},
-    "language": "fr-FR",
+    "language": "{{ .Entry.Language }}",
     "mimetype": "text/html",
-    "preview_picture": "http://www.numerama.com/content/uploads/2016/04/post-it.jpg",
+    "preview_picture": "{{ .Entry.PreviewPicture }}",
     "reading_time": 2,
-    "tags": [],
+    "tags": [{{ .Entry.GetTags }}],
     "title": "{{ .Entry.GetTitleJSON }}",
     "updated_at": "{{ .Entry.UpdDat }}",
     "url": "{{ .Entry.URL }}",
@@ -111,7 +111,8 @@ var defTmplEntry = []byte(`{
 }
 `)
 
-var defTmplEntries = []byte(`{
+var defTmplEntries = []byte(`
+    {
     "_embedded": {
         "items": [
         {{range $key,$entry := .Entries}}
@@ -123,18 +124,18 @@ var defTmplEntries = []byte(`{
             },
             "annotations": [],
             "content": "{{ $entry.GetContentJSON }}\n",
-            "created_at": "2017-12-20T22:32:51+0000",
-            "domain_name": "www.numerama.com",
+            "created_at": "{{ .Entry.CrtDat }}",
+            "domain_name": "{{ .Entry.Domain }}",
             "id": {{ $entry.EntryId }},
             "is_archived": {{ $entry.Archived }},
             "is_starred": {{ $entry.Starred }},
-            "language": "fr-FR",
+            "language": "{{ .Entry.Language }}",
             "mimetype": "text/html",
-            "preview_picture": "http://www.numerama.com/content/uploads/2016/04/post-it.jpg",
+            "preview_picture": "{{ .Entry.PreviewPicture }}",
             "reading_time": 2,
-            "tags": [],
+            "tags": [{{ $entry.GetTags }}],
             "title": "{{ $entry.GetTitleJSON }}",
-            "updated_at": "2017-12-20T22:32:51+0000",
+            "updated_at": "{{ .Entry.UpdDat }}",
             "url": "{{ $entry.URL }}",
             "user_email": "",
             "user_id": 1,
@@ -159,15 +160,15 @@ var defTmplEntries = []byte(`{
     "pages": {{ .Page }},
     "total": {{ .Page }}
 }
-
 `)
 
-var defTmplTags = []byte(`[
+var defTmplTags = []byte(`
+[
   {{range $key,$tag := .Tags}}
     {
         "slug":"{{ $tag.Slug }}",
         "label":"{{ $tag.Label }}",
-        "id":{{ $tag.Id }}
+        "id":{{ $tag.TagId }}
     },
   {{end}}
 ]

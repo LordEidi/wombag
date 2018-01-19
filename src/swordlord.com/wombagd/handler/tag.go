@@ -30,7 +30,10 @@ package handler
 -----------------------------------------------------------------------------*/
 import (
 	"fmt"
+	"github.com/gorilla/mux"
 	"net/http"
+	"strconv"
+	"strings"
 	"swordlord.com/wombag/tablemodule"
 	"swordlord.com/wombagd/render"
 	"swordlord.com/wombagd/respond"
@@ -38,7 +41,18 @@ import (
 
 func OnGetTagsForEntry(w http.ResponseWriter, req *http.Request){
 
-	respond.NotImplementedYet(w)
+	vars := mux.Vars(req)
+	sId := vars["entry"]
+
+	EntryId, err := strconv.Atoi(sId)
+
+	tags := render.TagsJSON{}
+
+	if err == nil {
+		tags.Tags = tablemodule.GetTagsPerEntry(uint(EntryId))
+	}
+
+	respond.Render(w, http.StatusOK, tags)
 }
 
 func OnAddTagsToEntry(w http.ResponseWriter, req *http.Request){
@@ -62,10 +76,28 @@ func OnAddTagsToEntry(w http.ResponseWriter, req *http.Request){
 		return
 	}
 
+	vars := mux.Vars(req)
+	sId := vars["entry"]
+
+	EntryId, err := strconv.Atoi(sId)
+
 	// split tags if not empty
 	// for each tag, check if exists, if not, add to tags, link to this entry
 
-	respond.NotImplementedYet(w)
+	tags := strings.Split(form.Tags, ",")
+	tagsJson := render.TagsJSON{}
+
+	for _, tag := range tags {
+
+		a, err := tablemodule.AddTagToEntry(uint(EntryId), tag)
+
+		if err == nil {
+			tagsJson.Tags = append(tagsJson.Tags, a)
+		}
+
+	}
+
+	respond.Render(w, http.StatusOK, tagsJson)
 }
 
 func OnDeleteTagOnEntriesBySlug(w http.ResponseWriter, req *http.Request){
@@ -77,7 +109,18 @@ func OnDeleteTagOnEntriesBySlug(w http.ResponseWriter, req *http.Request){
 func OnDeleteTagOnEntry(w http.ResponseWriter, req *http.Request){
 
 	// DELETE /api/entries/{entry}/tags/{tag}.{_format} -> tag (int), entry (int)
-	respond.NotImplementedYet(w)
+	vars := mux.Vars(req)
+	sEntryId := vars["entry"]
+	sTagId := vars["tag"]
+
+	entryId, _ := strconv.Atoi(sEntryId)
+	tagId, _ := strconv.Atoi(sTagId)
+
+	tablemodule.DeleteTagPerEntry(uint(entryId), uint(tagId))
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	fmt.Fprintf(w, "Deleted EntryTag\n")
 }
 
 func OnDeleteTagOnEntriesById(w http.ResponseWriter, req *http.Request){

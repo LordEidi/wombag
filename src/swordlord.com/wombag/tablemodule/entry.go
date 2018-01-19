@@ -42,6 +42,7 @@ import (
 
 func NewFilter() Filter {
 	filter := Filter{}
+	filter.EntryId = 0
 	filter.PerPage = 30
 	filter.Page = 1
 	filter.Starred = -1
@@ -51,6 +52,7 @@ func NewFilter() Filter {
 
 type Filter struct {
 
+	EntryId 	uint 	`form:"entry" json:"entry"` 	// Entry Id to filter for
 	Tags 		string 	`form:"tags" json:"tags"` 		// tag1,tag2,tag3 	a comma-separated list of tags.
 	Starred 	int 	`form:"starred" json:"starred"` // 1 or 0 	entry already starred
 	Archive 	int 	`form:"archive" json:"archive"` // 1 or 0 	entry already archived
@@ -62,11 +64,15 @@ type Filter struct {
 	Since 		int 	`form:"since" json:"since"` // default 0, The timestamp since when you want entries updated.
 }
 
-func GetEntryTyped(Id int) model.Entry {
+func GetEntryTyped(entryId int) model.Entry {
 
 	var entry model.Entry
 
-	query := wombag.GetDB().Order("CrtDat").First(&entry, Id)
+	query := wombag.GetDB().First(&entry, entryId)
+
+	tags := GetTagsPerEntry(uint(entryId))
+
+	entry.Tags = tags
 
 	if query.Error != nil {
 
@@ -79,7 +85,15 @@ func GetEntriesTyped(filter *Filter) []model.Entry {
 
 	var rows []model.Entry
 
-	query := wombag.GetDB().Order("CrtDat")
+	// pagesize and start
+	query := wombag.GetDB().Limit(filter.PerPage)
+	query = query.Offset(filter.PerPage * (filter.Page - 1))
+
+	if filter.Order == "desc" {
+		query = query.Order("CrtDat DESC")
+	} else {
+		query = query.Order("CrtDat")
+	}
 
 	if filter.Starred >= 0 {
 		query = query.Where("starred = ?", filter.Starred)
@@ -89,16 +103,15 @@ func GetEntriesTyped(filter *Filter) []model.Entry {
 		query = query.Where("archive = ?", filter.Archive)
 	}
 
+	if filter.EntryId != 0 {
+		query = query.Where("entry_id = ?", filter.EntryId)
+	}
+
 	if filter.Since >= 0 {
 
 	}
 
 	query.Find(&rows)
-
-	// Create
-	//db.Create(&model.Domain{Domain: "demo", Pwd: "demo"})
-
-	//db.First(&domain, "name = ?", "demo") // find product with id 1
 
 	return rows
 }

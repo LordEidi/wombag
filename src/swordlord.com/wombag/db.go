@@ -59,6 +59,7 @@ func InitDatabase() {
 	db.AutoMigrate(&model.Device{})
 	db.AutoMigrate(&model.Entry{})
 	db.AutoMigrate(&model.Tag{})
+	db.AutoMigrate(&model.EntryTag{})
 }
 
 func updateCreated(scope *gorm.Scope) {

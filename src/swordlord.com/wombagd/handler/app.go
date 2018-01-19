@@ -42,7 +42,7 @@ import (
 // standard query params usually sent with requests
 type QueryParams struct {
 
-	Url			string	`schema:"url" validate:"url"` 		// Url for the entry.
+	Url			string	`schema:"url" validate:"omitempty,url"` 		// Url for the entry.
 	Title		string 	`schema:"title" validate:"-"` 	// Optional, we'll get the title from the page.
 	Tags 		string 	`schema:"tags" validate:"-"` 		// tag1,tag2,tag3 	a comma-separated list of tags.
 	Starred 	int 	`schema:"starred" validate:"omitempty,min=0,max=1"` // 1 or 0 	entry already starred

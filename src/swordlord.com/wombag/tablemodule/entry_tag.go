@@ -29,25 +29,63 @@ package tablemodule
  **
 -----------------------------------------------------------------------------*/
 import (
+	"fmt"
 	"log"
 	"swordlord.com/wombag"
 	"swordlord.com/wombag/model"
 )
 
-func GetTagsPerEntry(entryId uint) []model.EntryTag {
+func GetTagsPerEntry(entryId uint) []model.Tag {
 
-	var rows []model.EntryTag
+	var rows []model.Tag
 
 	query := wombag.GetDB()
 
-	query.Where("Id=?", entryId)
+	rs := query.Joins("JOIN entry_tag on entry_tag.tag_id=tag.tag_id").Where("entry_tag.entry_id = ?", entryId).Group("tag.tag_id").Find(&rows)
+
+	if rs.Error != nil {
+		log.Printf("Error with Tags for Entry %q: %s\n", entryId, rs.Error)
+		log.Fatal(rs.Error)
+	}
 
 	return rows
 }
 
-func AddTagsToEntry() {
+func AddTagToEntry(EntryId uint, tag string) (model.Tag, error) {
 
-	// tags 	string 	false 	tag1,tag2,tag3 	a comma-separated list of tags.
+	db := wombag.GetDB()
+
+	t := model.Tag{Slug: tag, Label: tag}
+
+	retDB := db.Where(model.Tag{Slug: tag, Label: tag}).FirstOrInit(&t)
+	//retDB := db.Create(&t)
+
+	if retDB.Error != nil {
+		log.Printf("Error with Tag %q: %s\n", tag, retDB.Error)
+		log.Fatal(retDB.Error)
+		return model.Tag{}, retDB.Error
+	}
+
+	db.Save(&t)
+
+	fmt.Printf("Tag %s added.\n", tag)
+
+	te := model.EntryTag{EntryId: EntryId, TagId: t.TagId}
+
+	retDB2 := db.Where(model.EntryTag{EntryId: EntryId, TagId: t.TagId}).FirstOrInit(&te)
+	//retDB2 := db.Create(&te)
+
+	if retDB2.Error != nil {
+		log.Printf("Error with EntryTag %q: %s\n", te, retDB2.Error)
+		log.Fatal(retDB2.Error)
+		return model.Tag{}, retDB2.Error
+	}
+
+	db.Save(&te)
+
+	fmt.Printf("EntryTag Entry: %s Tag %s added.\n", EntryId, tag)
+
+	return t, nil
 }
 
 // TODO: function to remove tag from one entry, or from all (or some)
@@ -55,7 +93,7 @@ func DeleteTagPerEntry(entryID uint, tagID uint) {
 
 	db := wombag.GetDB()
 
-	retDB := db.Where("EntryID = ? AND TagID = ", entryID, tagID).Delete(model.EntryTag{})
+	retDB := db.Where("entry_id = ? AND tag_id = ?", entryID, tagID).Delete(model.EntryTag{})
 
 	if retDB.Error != nil {
 		log.Fatal(retDB.Error)

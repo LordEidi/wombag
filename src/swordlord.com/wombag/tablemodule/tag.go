@@ -47,7 +47,7 @@ func ListTags() {
 
 	for _, tag := range rows {
 
-		tags = append(tags, []string{string(tag.Id), tag.Slug, tag.Label, tag.CrtDat.Format("2006-01-02 15:04:05"), tag.UpdDat.Format("2006-01-02 15:04:05")})
+		tags = append(tags, []string{string(tag.TagId), tag.Slug, tag.Label, tag.CrtDat.Format("2006-01-02 15:04:05"), tag.UpdDat.Format("2006-01-02 15:04:05")})
 	}
 
 	wombag.WriteTable([]string{"Id", "Slug", "Label", "CrtDat", "UpdDat"}, tags)
@@ -119,9 +119,9 @@ func DeleteTag(tagId uint) {
 		return
 	}
 
-	DeleteEntryTag(tag.Id)
+	DeleteEntryTag(tag.TagId)
 
-	log.Printf("Deleting Tag: %s", tag.Id)
+	log.Printf("Deleting Tag: %s", tag.TagId)
 
 	db.Delete(&tag)
 
@@ -148,9 +148,9 @@ func DeleteTagBySlug(slug string) {
 		return
 	}
 
-	DeleteEntryTag(tag.Id)
+	DeleteEntryTag(tag.TagId)
 
-	log.Printf("Deleting Tag: %s", tag.Id)
+	log.Printf("Deleting Tag: %s", tag.TagId)
 
 	db.Delete(&tag)
 
