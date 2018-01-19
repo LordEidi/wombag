@@ -9,31 +9,30 @@ Wombag
 
 **Wombag** is a lightweight, self-hostable read it later service, supporting the [Wallabag API](https://app.wallabag.it/api/doc).
 
-_This is still work in progress! Expect things to crash and burn on a regular basis. Said that, the current version can save and retrieve entries, updates starred and archived flags and deletes whatever you ask to be deleted. Rest to follow..._
+_This is still work in progress! Expect things to crash and burn on a regular basis. Said that, the current version can save and retrieve entries, updates starred and archived flags, it deletes whatever you ask to be deleted and it handles tags. Don't expect annotations to work somewhen soon, it is a mess (different API URL, different authentication)_
 
 If you are looking for a lightweight service to store and manage websites and links in, then **Wombag** might be for you:
 
 - **Wombag** supports the core functionality of the _Wallabag v2 API_. So that you can use your preferred Wallabag Apps and Clients with **Wombag**.
-- **Wombag** is not based on a scripting engine but is compiled into a _native binary_ for your platform. This makes **Wombag** _very lightweight_. Just take the application and run it on your server.
+- **Wombag** is not based on a scripting engine but is compiled into a _native binary_ for your platform. This makes **Wombag** _very lightweight_. Just take the application and run it on your server. The application takes care of creating config files it needs when they are not found on a system.
 - **Wombag** makes use of [Gorm](http://jinzhu.me/gorm/) to store its data in a database. We use SQLite3 as our database of choice. But you may use PostgreSQL, MS SQL Server or MySQL, if you prefer or need some more oomph at the data layer. 
-- **Wombag** currently does not have its own web frontend. But there is the wombagcli command line interface to configure users and manage the data. Which also means there is no admin UI exposed to the world.
+- **Wombag** currently does not have its own web frontend. But there is the wombagcli command line interface to configure users and manage the data. Which also means there is no admin UI exposed to the world and dog.
 
 ## Components ##
 
 **Wombag** consists of two parts: 
 
-- The **wombagd** daemon is the server part, accepting links, doing the readability magic and serving your links to your clients. Run the daemon on a server and point your clients towards it.
+- The **wombagd** daemon is the server part, accepting links, doing the readability magic and serving the stored links to your clients. Run the daemon on a server and point your clients towards it.
 - The **wombagcli** admin client, running on the commandline. With this client you can manage your users and devices, as well as the links and websites you want to store in **Wombag**. You could even automate some interaction with **Wombag** with the help of this tool. Like fetching mails and adding the links in them to **Wombag**, or something like that.
-
 
 ## Status ##
 
 **Wombag** is still under development:
 
-- the Wallabag v2 API is about 85% supported for now (PUT, GET, DELETE, PATCH Entries, a little bit of Tags. No such things as Attributes yet. But they are a bit special on the Wallabag API anyway. They have a different entry point to the rest, as example).
+- the Wallabag v2 API is about 95% supported for now (PUT, GET, DELETE, PATCH Entries and Tags. No such thing as Attributes. Attributes are a bit special on the Wallabag API anyway. They have a different entry point to the regular API, as example).
 - there is also no such thing as multi-user support. While you can configure multiple users and devices, all those users will see the same data. This is definitely a planned feature, but not yet done (you might help out, if you need this quicker).
-- **Wombag** will not have a web UI for a while (isn't planned, but never say never). But there is our CLI interface which helps you in managing your data and users.
-- **Wombag** does not support TLS on its own. Make sure to have a proxy like Nginx in front of Wombag for that. See below for configuration hints on that.
+- **Wombag** will not have a web UI for a while (isn't planned, but never say never). But there is our CLI interface which helps you in managing your data and users right from the commandline.
+- **Wombag** does not support TLS on its own. Make sure to have a proxy like Nginx in front of Wombag for that. See below for configuration examples on that.
 
 We mostly test and use **Wombag** with the Firefox Wallabag App as well as with [Wallabag Pro](https://itunes.apple.com/gb/app/wallabag-pro/id1187619443) on iOS. YMMV if you use different clients.
 
@@ -53,6 +52,14 @@ Create the user under which you want to run **Wombag**:
 Go into the directory where you want to run your copy of **Wombag** and download the latest version from the Github release page:
 
     Work in Progress. Please git clone this project for now and build your own binary. While we work on a release process.
+    
+In the meantime, you may 
+
+    git clone https://github.com/LordEidi/wombag.git
+
+this repository and build **Wombag** on your own with the following command:
+
+    gb build all
 
 If everything worked according to plan, you should now have a new installation of the latest **Wombag**.
 
@@ -64,7 +71,6 @@ Run these in a terminal
     > wombagcli device add testdevice password testuser
 
 You can now authenticate with that device on **wombagd**
-
 
 ### Use supervisord to run **wombagd** as a service ###
 
@@ -143,7 +149,7 @@ Thats it, your instance of **Wombag** should run as expected. All logs are sent 
 
 ## Configuration ##
 
-All parameters which can be configured right now are in the file *config.js*.
+All parameters which can be configured right now are in the file *wombag.config.js*. A default configuration file will be written on the first run of the application.
 
 ## How to run ##
 
@@ -164,6 +170,9 @@ If you want to play around with the API for a bit, you might be interested in th
 
 If you know Go (or a bit of Angular for a nifty Web Frontend) and would like to help out, send us a note. There is still much work to be done on **Wombag**.
 
+## Dependencies ##
+
+Dependencies are managed in the "vendor" folder. Just go to the root of this project and "gb build all" to compile the projects binaries (for your platform).
 
 ## License ##
 
