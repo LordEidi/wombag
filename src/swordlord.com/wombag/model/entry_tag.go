@@ -30,6 +30,7 @@ package model
 -----------------------------------------------------------------------------*/
 import (
 	"time"
+	"github.com/jinzhu/gorm"
 )
 
 // TODO: Add CrtUsr and UpdUsr
@@ -42,4 +43,12 @@ type EntryTag struct {
 	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`
 	UpdDat	time.Time `sql:"DEFAULT:current_timestamp"`
 }
+
+func (m *EntryTag) BeforeUpdate(scope *gorm.Scope) (err error) {
+
+	scope.SetColumn("UpdDat", time.Now())
+	return  nil
+}
+
+
 

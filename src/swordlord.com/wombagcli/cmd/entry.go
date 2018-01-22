@@ -42,9 +42,7 @@ var entryCmd = &cobra.Command{
 	Use:   "entry",
 	Short: "With the entry command you can add, change and manage your entries.",
 	Long: `With the entry command you can add, change and manage your entries.`,
-	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("command 'entry' called")
-	},
+	RunE: nil,
 }
 
 var entryListCmd = &cobra.Command{
@@ -80,10 +78,10 @@ func ListEntry(cmd *cobra.Command, args []string) error {
 func AddEntry(cmd *cobra.Command, args []string) error {
 
 	if len(args) != 1 {
-		er("command 'add' needs an URL")
-	} else {
-		tablemodule.AddEntry(args[0])
+		return fmt.Errorf("command 'add' needs an URL")
 	}
+
+	tablemodule.AddEntry(args[0])
 
 	return nil
 }
@@ -91,15 +89,15 @@ func AddEntry(cmd *cobra.Command, args []string) error {
 func DeleteEntry(cmd *cobra.Command, args []string) error {
 
 	if len(args) != 1 {
-		er("command 'delete' needs an ID")
-	} else {
-
-		id, err := strconv.Atoi(args[0])
-		if err != nil {
-			er("Entry ID is not a number")
-		}
-		tablemodule.DeleteEntry(uint(id))
+		return fmt.Errorf("command 'delete' needs an ID")
 	}
+
+	id, err := strconv.Atoi(args[0])
+	if err != nil {
+		return fmt.Errorf("entry ID is not a number")
+	}
+
+	tablemodule.DeleteEntry(uint(id))
 
 	return nil
 }

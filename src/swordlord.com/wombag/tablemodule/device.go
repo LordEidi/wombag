@@ -42,7 +42,13 @@ func ValidateDeviceInDB(deviceId, deviceToken string) (model.Device, error) {
 
 	device := model.Device{}
 
-	retDB := db.Where("id = ? AND token = ?", deviceId, deviceToken).First(&device)
+	token, err := hashPassword(deviceToken)
+	if err != nil {
+		log.Printf("Error with hashing password %q: %s\n", token, err )
+		return model.Device{}, err
+	}
+
+	retDB := db.Where("id = ?", deviceId).First(&device)
 
 	if retDB.Error != nil {
 		log.Printf("Login of device failed %q: %s\n", deviceId, retDB.Error )
@@ -52,6 +58,12 @@ func ValidateDeviceInDB(deviceId, deviceToken string) (model.Device, error) {
 	if retDB.RowsAffected <= 0 {
 		log.Printf("Login of device failed. Device not found: %s\n", deviceId)
 		return model.Device{}, retDB.Error
+	}
+
+	err = checkHashedPassword(device.Token, deviceToken)
+	if err != nil {
+		log.Printf("Passwordhash missmatch for device: %s: %s\n", deviceId, err)
+		return model.Device{}, err
 	}
 
 	u1 := uuid.NewV4()
@@ -111,9 +123,15 @@ func ListDevice() {
 	wombag.WriteTable([]string{"Id", "Token", "User", "CrtDat", "UpdDat"}, devices)
 }
 
-func AddDevice(name string, pwd string, user string) (model.Device, error) {
+func AddDevice(name string, password string, user string) (model.Device, error) {
 
 	db := wombag.GetDB()
+
+	pwd, err := hashPassword(password)
+	if err != nil {
+		log.Printf("Error with hashing password %q: %s\n", password, err )
+		return model.Device{}, err
+	}
 
 	device := model.Device{Id: name, Token: pwd, UserName: user}
 	retDB := db.Create(&device)
@@ -129,19 +147,26 @@ func AddDevice(name string, pwd string, user string) (model.Device, error) {
 	return device, nil
 }
 
-func UpdateDevice(name string, pwd string) {
+func UpdateDevice(name string, password string) error {
 
 	db := wombag.GetDB()
+
+	pwd, err := hashPassword(password)
+	if err != nil {
+		log.Printf("Error with hashing password %q: %s\n", password, err )
+		return err
+	}
 
 	retDB := db.Model(&model.Device{}).Where("Id=?", name).Update("Token", pwd)
 
 	if retDB.Error != nil {
 		log.Printf("Error with Device %q: %s\n", name, retDB.Error)
-		log.Fatal(retDB.Error)
-		return
+		return retDB.Error
 	}
 
 	fmt.Printf("Device %s updated.\n", name)
+
+	return nil
 }
 
 func DeleteDevice(name string) {

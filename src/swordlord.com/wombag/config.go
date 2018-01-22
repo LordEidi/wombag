@@ -32,7 +32,6 @@ import (
 	"github.com/spf13/viper"
 	"io/ioutil"
 	"log"
-	"fmt"
 )
 
 var env string
@@ -75,12 +74,12 @@ func InitConfig() {
 	}
 
 	// Confirm which config file is used
-	fmt.Printf("Using config: %s\n", viper.ConfigFileUsed())
+	// fmt.Printf("Using config: %s\n", viper.ConfigFileUsed())
 
 	env = viper.GetString("env")
 
 	// Confirm which config file is used
-	fmt.Printf("Env set to: %s\n", env)
+	// fmt.Printf("Env set to: %s\n", env)
 
 	EnsureTemplateFilesExist()
 }

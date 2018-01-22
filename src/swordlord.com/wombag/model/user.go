@@ -29,6 +29,7 @@ package model
  **
 -----------------------------------------------------------------------------*/
 import (
+	"github.com/jinzhu/gorm"
 	"time"
 )
 
@@ -40,9 +41,8 @@ type User struct {
 	UpdDat	time.Time `sql:"DEFAULT:current_timestamp"`
 }
 
-/*
-func (s *User) BeforeUpdate() (err error) {
-	s.UpdDat = time.Now()
-	return
+func (m *User) BeforeUpdate(scope *gorm.Scope) (err error) {
+
+	scope.SetColumn("UpdDat", time.Now())
+	return  nil
 }
-*/

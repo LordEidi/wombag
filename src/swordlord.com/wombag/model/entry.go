@@ -31,6 +31,7 @@ package model
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/jinzhu/gorm"
 	"strings"
 	"time"
 )
@@ -52,6 +53,12 @@ type Entry struct {
 	Archived bool `sql:"NOT NULL;DEFAULT:false"`
 	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`
 	UpdDat	time.Time `sql:"DEFAULT:current_timestamp"`
+}
+
+func (m *Entry) BeforeUpdate(scope *gorm.Scope) (err error) {
+
+	scope.SetColumn("UpdDat", time.Now())
+	return  nil
 }
 
 func (e Entry) GetContentJSON() string {

@@ -1,5 +1,4 @@
 package cmd
-
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -30,15 +29,17 @@ package cmd
  **
 -----------------------------------------------------------------------------*/
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"swordlord.com/wombag/tablemodule"
 )
 
-// domainCmd represents the domain command
+// deviceCmd to manage devices
 var deviceCmd = &cobra.Command{
 	Use:   "device",
-	Short: "Add, change and manage devices of your users.",
-	Long: `Add, change and manage devices of your users. Requires a subcommand.`,
+	Short: "Add, change and delete devices of your users.",
+	Long: `Add, change and delete devices of your users. 
+Requires a subcommand.`,
 	RunE: nil,
 }
 
@@ -50,16 +51,18 @@ var deviceListCmd = &cobra.Command{
 }
 
 var deviceAddCmd = &cobra.Command{
-	Use:   "add [device] [password] [user]",
-	Short: "Add new device to given user.",
-	Long: `Add new device to given user.`,
+	Use:   "add [device] [devicetoken] [user]",
+	Short: "Adds new device for a user.",
+	Long: `Adds new device for a user. Device can be used immediately.`,
+	Args: cobra.ExactArgs(3),
 	RunE: AddDevice,
 }
 
 var deviceUpdateCmd = &cobra.Command{
-	Use:   "update [device] [password]",
-	Short: "Update the password of the device.",
-	Long: `Update the password of the device.`,
+	Use:   "update [device] [devicetoken]",
+	Short: "Updates the password of the device.",
+	Long: `Updates the password of the device.`,
+	Args: cobra.ExactArgs(2),
 	RunE: UpdateDevice,
 }
 
@@ -67,6 +70,7 @@ var deviceDeleteCmd = &cobra.Command{
 	Use:   "delete [device]",
 	Short: "Deletes a device.",
 	Long: `Deletes a device.`,
+	Args: cobra.ExactArgs(1),
 	RunE: DeleteDevice,
 }
 
@@ -80,32 +84,32 @@ func ListDevices(cmd *cobra.Command, args []string) error {
 func AddDevice(cmd *cobra.Command, args []string) error {
 
 	if len(args) != 3 {
-		er("command 'add' needs a device, password and user")
-	} else {
-		tablemodule.AddDevice(args[0], args[1], args[2])
+		return fmt.Errorf("command 'add' needs a device, devicetoken and user")
 	}
 
-	return nil
+	_, err := tablemodule.AddDevice(args[0], args[1], args[2])
+
+	return err
 }
 
 func UpdateDevice(cmd *cobra.Command, args []string) error {
 
 	if len(args) != 2 {
-		er("command 'update' needs a device and a new password")
-	} else {
-		tablemodule.UpdateDevice(args[0], args[1])
+		return fmt.Errorf("command 'update' needs a device and a new password")
 	}
 
-	return nil
+	err := tablemodule.UpdateDevice(args[0], args[1])
+
+	return err
 }
 
 func DeleteDevice(cmd *cobra.Command, args []string) error {
 
 	if len(args) < 1 {
-		er("command 'delete' needs a device Id")
-	} else {
-		tablemodule.DeleteDevice(args[0])
+		return fmt.Errorf("command 'delete' needs a device Id")
 	}
+
+	tablemodule.DeleteDevice(args[0])
 
 	return nil
 }

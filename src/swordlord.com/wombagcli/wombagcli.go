@@ -45,8 +45,11 @@ func main() {
 	wombag.InitDatabase()
 	defer wombag.CloseDB()
 
+	// initialise the command structure
 	if err := cmd.RootCmd.Execute(); err != nil {
 		fmt.Println(err)
+
+		// yes, we deferred closing of the db, but that only works when ending with dignity
 		wombag.CloseDB()
 		os.Exit(1)
 	}

@@ -29,6 +29,7 @@ package tablemodule
  **
 -----------------------------------------------------------------------------*/
 import (
+	"golang.org/x/crypto/bcrypt"
 	"log"
 	"fmt"
 	"swordlord.com/wombag/model"
@@ -87,9 +88,15 @@ func ListUser() {
 	wombag.WriteTable([]string{"Name", "Pwd", "CrtDat", "UpdDat"}, users)
 }
 
-func AddUser(name string, pwd string) (model.User, error) {
+func AddUser(name string, password string) (model.User, error) {
 
 	db := wombag.GetDB()
+
+	pwd, err := hashPassword(password)
+	if err != nil {
+		log.Printf("Error with hashing password %q: %s\n", password, err )
+		return model.User{}, err
+	}
 
 	user := model.User{Name: name, Pwd: pwd}
 	retDB := db.Create(&user)
@@ -104,19 +111,26 @@ func AddUser(name string, pwd string) (model.User, error) {
 	return user, nil
 }
 
-func UpdateUser(name string, pwd string) {
+func UpdateUser(name string, password string) error {
 
 	db := wombag.GetDB()
+
+	pwd, err := hashPassword(password)
+	if err != nil {
+		log.Printf("Error with hashing password %q: %s\n", password, err )
+		return err
+	}
 
 	retDB := db.Model(&model.User{}).Where("Name=?", name).Update("Pwd", pwd)
 
 	if retDB.Error != nil {
 		log.Printf("Error with User %q: %s\n", name, retDB.Error )
-		log.Fatal(retDB.Error)
-		return
+		return retDB.Error
 	}
 
 	fmt.Printf("User %s updated.\n", name)
+
+	return nil
 }
 
 func DeleteUser(name string) {
@@ -139,9 +153,37 @@ func DeleteUser(name string) {
 		return
 	}
 
-	log.Printf("Deleting User: %s", &user.Name)
-
 	db.Delete(&user)
 
 	fmt.Printf("User %s deleted.\n", name)
+}
+
+func hashPassword(pwd string) (string, error) {
+
+	password := []byte(pwd)
+
+	// Hashing the password with the default cost of 10
+	hashedPassword, err := bcrypt.GenerateFromPassword(password, bcrypt.DefaultCost)
+	if err != nil {
+		return "", err
+	}
+
+	return string(hashedPassword), nil
+
+	// Comparing the password with the hash
+	//err = bcrypt.CompareHashAndPassword(hashedPassword, password)
+	//fmt.Println(err) // nil means it is a match
+}
+
+
+func checkHashedPassword(hashedPassword string, password string) (error) {
+
+	pwd := []byte(password)
+	hashedPwd := []byte(hashedPassword)
+
+	// Comparing the password with the hash
+	err := bcrypt.CompareHashAndPassword(hashedPwd, pwd)
+
+	// nil means it is a match
+	return err
 }

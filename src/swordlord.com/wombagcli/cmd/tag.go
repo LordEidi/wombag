@@ -1,5 +1,4 @@
 package cmd
-
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -30,44 +29,49 @@ package cmd
  **
 -----------------------------------------------------------------------------*/
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"strconv"
 	"swordlord.com/wombag/tablemodule"
 )
 
-// domainCmd represents the domain command
+// tagCmd, to manage tags
 var tagCmd = &cobra.Command{
 	Use:   "tag",
-	Short: "Add, change and manage devices of your users.",
-	Long: `Add, change and manage devices of your users. Requires a subcommand.`,
+	Short: "Add, change and manage tags either on entries or on their own.",
+	Long: `Add, change and manage tags either on entries or on their own. 
+Requires a subcommand`,
 	RunE: nil,
 }
 
 var tagListCmd = &cobra.Command{
 	Use:   "list",
-	Short: "List all devices.",
-	Long: `List all devices.`,
+	Short: "List all tags.",
+	Long: `List all tags.`,
 	RunE: ListTags,
 }
 
 var tagAddCmd = &cobra.Command{
-	Use:   "add [device] [password] [user]",
-	Short: "Add new device to given user.",
-	Long: `Add new device to given user.`,
+	Use:   "add [tag] [slug]",
+	Short: "Add new tag.",
+	Long: `Add new tag.`,
+	Args: cobra.ExactArgs(2),
 	RunE: AddTag,
 }
 
-var tagUpdateCmd = &cobra.Command{
-	Use:   "update [device] [password]",
-	Short: "Update the password of the device.",
-	Long: `Update the password of the device.`,
-	RunE: UpdateTag,
+var tagAddToEntryCmd = &cobra.Command{
+	Use:   "addtagtoentry [tag] [entry]",
+	Short: "Add new tag to an entry.",
+	Long: `Add new tag to an entry.`,
+	Args: cobra.ExactArgs(2),
+	RunE: AddTagToEntry,
 }
 
 var tagDeleteCmd = &cobra.Command{
-	Use:   "delete [device]",
-	Short: "Deletes a device.",
-	Long: `Deletes a device.`,
+	Use:   "delete [tag]",
+	Short: "Deletes a tag from all entries.",
+	Long: `Deletes a tag from all entries.`,
+	Args: cobra.ExactArgs(1),
 	RunE: DeleteTag,
 }
 
@@ -81,18 +85,18 @@ func ListTags(cmd *cobra.Command, args []string) error {
 func AddTag(cmd *cobra.Command, args []string) error {
 
 	if len(args) != 2 {
-		er("command 'add' needs a tag label and slug")
-	} else {
-		tablemodule.AddTag(args[0], args[1])
+		return fmt.Errorf("command 'add' needs a tag label and slug")
 	}
+
+	tablemodule.AddTag(args[0], args[1])
 
 	return nil
 }
 
-func UpdateTag(cmd *cobra.Command, args []string) error {
+func AddTagToEntry(cmd *cobra.Command, args []string) error {
 
 	if len(args) != 3 {
-		er("command 'update' needs a tag id, a new label and new slug")
+		return fmt.Errorf("command 'addtagtoentry' needs a tag and an entry")
 	} else {
 		id, err := strconv.Atoi(args[0])
 
@@ -109,7 +113,7 @@ func UpdateTag(cmd *cobra.Command, args []string) error {
 func DeleteTag(cmd *cobra.Command, args []string) error {
 
 	if len(args) < 1 {
-		er("command 'delete' needs a tag Id")
+		return fmt.Errorf("command 'delete' needs a tag Id")
 	} else {
 		id, err := strconv.Atoi(args[0])
 
@@ -126,8 +130,8 @@ func DeleteTag(cmd *cobra.Command, args []string) error {
 func init() {
 	RootCmd.AddCommand(tagCmd)
 
-	deviceCmd.AddCommand(tagListCmd)
-	deviceCmd.AddCommand(tagAddCmd)
-	deviceCmd.AddCommand(tagUpdateCmd)
-	deviceCmd.AddCommand(tagDeleteCmd)
+	tagCmd.AddCommand(tagListCmd)
+	tagCmd.AddCommand(tagAddCmd)
+	tagCmd.AddCommand(tagAddToEntryCmd)
+	tagCmd.AddCommand(tagDeleteCmd)
 }

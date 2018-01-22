@@ -32,7 +32,6 @@ import (
 	"github.com/jinzhu/gorm"
 	"log"
 	"swordlord.com/wombag/model"
-	"time"
 )
 
 var db gorm.DB
@@ -52,6 +51,8 @@ func InitDatabase() {
 
 	db = *database
 
+	//db.Callback().Update().Register("update_upd_dat", updateCreated)
+
 	db.SingularTable(true)
 	db.LogMode(true)
 
@@ -63,9 +64,14 @@ func InitDatabase() {
 }
 
 func updateCreated(scope *gorm.Scope) {
+
+	/*
+	log.Println("updatecreated")
+
 	if scope.HasColumn("UpdDat") {
 		scope.SetColumn("UpdDat", time.Now())
 	}
+	*/
 }
 
 func CloseDB() {

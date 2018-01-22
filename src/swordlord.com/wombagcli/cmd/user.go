@@ -30,6 +30,7 @@ package cmd
  **
 -----------------------------------------------------------------------------*/
 import (
+	"fmt"
 	"github.com/spf13/cobra"
 	"swordlord.com/wombag/tablemodule"
 )
@@ -53,6 +54,7 @@ var userAddCmd = &cobra.Command{
 	Use:   "add [username] [password]",
 	Short: "Add new user to this instance of Wombag.",
 	Long: `Add new user to this instance of Wombag.`,
+	Args: cobra.ExactArgs(2),
 	RunE: AddUser,
 }
 
@@ -60,6 +62,7 @@ var userUpdateCmd = &cobra.Command{
 	Use:   "update [userid] [password]",
 	Short: "Update the password of the user.",
 	Long: `Update the password of the user.`,
+	Args: cobra.ExactArgs(2),
 	RunE: UpdateUser,
 }
 
@@ -67,6 +70,7 @@ var userDeleteCmd = &cobra.Command{
 	Use:   "delete [userid]",
 	Short: "Deletes a user and all of her devices.",
 	Long: `Deletes a user and all of his or her devices.`,
+	Args: cobra.ExactArgs(1),
 	RunE: DeleteUser,
 }
 
@@ -80,10 +84,10 @@ func ListUser(cmd *cobra.Command, args []string) error {
 func AddUser(cmd *cobra.Command, args []string) error {
 
 	if len(args) < 2 {
-		er("command 'add' needs a user name and a password")
-	} else {
-		tablemodule.AddUser(args[0], args[1])
+		return fmt.Errorf("command 'add' needs a user name and a password")
 	}
+
+	tablemodule.AddUser(args[0], args[1])
 
 	return nil
 }
@@ -91,10 +95,10 @@ func AddUser(cmd *cobra.Command, args []string) error {
 func UpdateUser(cmd *cobra.Command, args []string) error {
 
 	if len(args) < 2 {
-		er("command 'update' needs a user identification and a new password")
-	} else {
-		tablemodule.UpdateUser(args[0], args[1])
+		return fmt.Errorf("command 'update' needs a user identification and a new password")
 	}
+
+	tablemodule.UpdateUser(args[0], args[1])
 
 	return nil
 }
@@ -102,10 +106,10 @@ func UpdateUser(cmd *cobra.Command, args []string) error {
 func DeleteUser(cmd *cobra.Command, args []string) error {
 
 	if len(args) < 1 {
-		er("command 'delete' needs a user identification")
-	} else {
-		tablemodule.DeleteUser(args[0])
+		return fmt.Errorf("command 'delete' needs a user identification")
 	}
+
+	tablemodule.DeleteUser(args[0])
 
 	return nil
 }

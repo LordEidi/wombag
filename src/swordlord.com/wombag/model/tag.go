@@ -28,7 +28,9 @@ package model
  ** LordLightningBolt@swordlord.com
  **
 -----------------------------------------------------------------------------*/
+
 import (
+	"github.com/jinzhu/gorm"
 	"time"
 )
 
@@ -39,3 +41,10 @@ type Tag struct {
 	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`
 	UpdDat	time.Time `sql:"DEFAULT:current_timestamp"`
 }
+
+func (m *Tag) BeforeUpdate(scope *gorm.Scope) (err error) {
+
+	scope.SetColumn("UpdDat", time.Now())
+	return  nil
+}
+

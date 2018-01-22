@@ -41,10 +41,11 @@ import (
 
 func main() {
 
-	//
+	// Initialise env and params
 	wombag.InitConfig()
 
-	//
+	// Initialise database
+	// todo: make sure database is working as expected, chicken out otherwise
 	wombag.InitDatabase()
 	defer wombag.CloseDB()
 
@@ -56,15 +57,10 @@ func main() {
 
 	n.UseHandler(gr)
 
-	/*
-	if env != "dev" {
-		gin.SetMode(gin.ReleaseMode)
-	}
-	*/
-
 	// what to do when a user hits the root
 	gr.HandleFunc("/", handler.OnRoot).Methods("GET")
 
+	// annotations are very special, they are using the web authentication method vs oauth
 	gr.HandleFunc("/annotations/{annotation}", handler.OnRemoveAnnotation).Methods("DELETE")
 	gr.HandleFunc("/annotations/{annotation}", handler.OnUpdateAnnotation).Methods("PUT")
 	gr.HandleFunc("/annotations/{annotation}", handler.OnRetrieveAnnotation).Methods("GET")
