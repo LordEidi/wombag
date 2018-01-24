@@ -90,9 +90,9 @@ func GetEntriesTyped(filter *Filter) []model.Entry {
 	query = query.Offset(filter.PerPage * (filter.Page - 1))
 
 	if filter.Order == "desc" {
-		query = query.Order("CrtDat DESC")
+		query = query.Order("crt_dat DESC")
 	} else {
-		query = query.Order("CrtDat")
+		query = query.Order("crt_dat")
 	}
 
 	if filter.Starred >= 0 {
@@ -111,7 +111,18 @@ func GetEntriesTyped(filter *Filter) []model.Entry {
 
 	}
 
+	//expr := query.QueryExpr()
+	//log.Printf("Query: %v\n", expr)
 	query.Find(&rows)
+
+	// todo: this is an ugly hack!
+	for index, entry := range rows {
+
+		tags := GetTagsPerEntry(uint(entry.EntryId))
+
+		rows[index].Tags = tags
+		//entry.Tags = tags
+	}
 
 	return rows
 }
@@ -130,6 +141,7 @@ func GetEntries(withDetails bool) [][]string {
 
 			entries = append(entries, []string{ entry.Title, entry.Content, entry.CrtDat.Format("2006-01-02 15:04:05"), entry.UpdDat.Format("2006-01-02 15:04:05")})
 		} else {
+
 			entries = append(entries, []string{ entry.Title, entry.CrtDat.Format("2006-01-02 15:04:05"), entry.UpdDat.Format("2006-01-02 15:04:05")})
 		}
 	}

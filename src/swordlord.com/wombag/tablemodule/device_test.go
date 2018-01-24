@@ -60,11 +60,11 @@ func TestAddOK(t *testing.T) {
 	assert.NotNil(t, d2.AccessToken, "Expecting an AccessToken")
 	assert.NotEmpty(t, d2.AccessToken, "Expecting an AccessToken")
 
-	ret1, err := ValidateAccessTokenInDB(d2.AccessToken)
-	assert.Nil(t, err)
+	_, err1 := ValidateAccessTokenInDB(d2.AccessToken)
+	assert.Nil(t, err1)
 
-	ret2, err := ValidateAccessTokenInDB("complete_rubbish")
-	assert.NotNil(t, err)
+	_, err2 := ValidateAccessTokenInDB("complete_rubbish")
+	assert.NotNil(t, err2)
 
 	// cleaning up
 	DeleteUser("TestUser")
