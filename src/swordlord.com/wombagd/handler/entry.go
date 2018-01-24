@@ -143,8 +143,9 @@ func OnChangeEntry(w http.ResponseWriter, req *http.Request){
 	vars := mux.Vars(req)
 
 	sId := vars["entry"]
+	sTitle := form.Title
 
-	tablemodule.UpdateEntry(sId, form.Starred != 0, form.Archive != 0)
+	tablemodule.UpdateEntry(sId, form.Starred != 0, form.Archive != 0, sTitle)
 
 	id, err := strconv.Atoi(sId)
 

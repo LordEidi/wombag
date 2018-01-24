@@ -121,7 +121,6 @@ func GetEntriesTyped(filter *Filter) []model.Entry {
 		tags := GetTagsPerEntry(uint(entry.EntryId))
 
 		rows[index].Tags = tags
-		//entry.Tags = tags
 	}
 
 	return rows
@@ -215,7 +214,7 @@ func AddEntry(Url string) (model.Entry, error) {
 	return entry, nil
 }
 
-func UpdateEntry(Id string, Starred bool, Archived bool) {
+func UpdateEntry(Id string, Starred bool, Archived bool, Title string) {
 
 	db := wombag.GetDB()
 
@@ -224,7 +223,10 @@ func UpdateEntry(Id string, Starred bool, Archived bool) {
 	fields["starred"] = Starred
 	fields["archived"] = Archived
 
-	//db.Model(&user).Updates(map[string]interface{}{"name": "hello", "age": 18, "actived": false})
+	if len(Title) > 0 {
+
+		fields["title"] = Title
+	}
 
 	retDB := db.Model(&model.Entry{}).Where("entry_id=?", Id).Updates(fields)
 
