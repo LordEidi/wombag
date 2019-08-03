@@ -2,7 +2,7 @@
   "env": "dev",
   "add_demo_users": "true",
   "www": {
-    "host": "0.0.0.0",
+    "host": "127.0.0.1",
     "port": "8081"
   },
   "db": {
@@ -10,8 +10,10 @@
     "args": "wombag.db"
   },
   "templates": {
-    "auth": "./templates/auth.tmpl",
-    "entries": "./templates/entries.tmpl",
-    "entry": "./templates/entry.tmpl"
+    "dir": "./templates/",
+    "auth": "auth.tmpl",
+    "entries": "entries.tmpl",
+    "entry": "entry.tmpl",
+    "tags": "tags.tmpl"
   }
 }

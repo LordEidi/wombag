@@ -3,7 +3,7 @@ Wombag
 
 ![Wombag](https://raw.githubusercontent.com/LordEidi/wombag/master/wombag_logo.png)
 
-**Wombag** (c) 2017-18 by [SwordLord - the coding crew](https://www.swordlord.com/)
+**Wombag** (c) 2017-19 by [SwordLord - the coding crew](https://www.swordlord.com/)
 
 ## Introduction ##
 
@@ -51,17 +51,7 @@ Create the user under which you want to run **Wombag**:
 
 Go into the directory where you want to run your copy of **Wombag** and download the latest version from the Github release page:
 
-    Work in Progress. Please git clone this project for now and build your own binary. While we work on a release process.
-    
-In the meantime, you may 
-
-    git clone https://github.com/LordEidi/wombag.git
-
-this repository and build **Wombag** on your own with the following command:
-
-    gb build all
-
-If everything worked according to plan, you should now have a new installation of the latest **Wombag**.
+https://github.com/LordEidi/wombag/releases
 
 ### Add your first user with **wombagcli** ###
 
@@ -72,9 +62,22 @@ Run these in a terminal
 
 You can now authenticate with that device on **wombagd**
 
+### Use systemd to run **wombagd** as a service ###
+
+Have a look at the _utilities/wombagd.service_ file.
+
+The commands to install and run **wombagd** as a systemd service are:
+
+    cp utilities/wombagd.service /lib/systemd/system/.
+    chmod 755 /lib/systemd/system/wombagd.service
+    systemctl enable wombagd.service
+    systemctl start wombagd.service
+    
+Please see journalctl for errors in your log.
+
 ### Use supervisord to run **wombagd** as a service ###
 
-Now we want to make sure that **wombagd** runs forever. First install the required software:
+If you do not like systemd or if this is not an option, you might want to run it with supervisord. First install the required software:
 
     sudo apt-get install supervisor
 
@@ -88,18 +91,12 @@ Make sure you change the configuration to your local setup.
 
 Since **Wombag** does not bring it's own transport encryption, you should install a TLS server in front of **Wombag**. You can do so with nginx, which is a lightweight http server and proxy.
 
-First prepare your /etc/apt/sources.list file (or just install the standard Debian package, your choice):
-
-    deb http://nginx.org/packages/debian/ stretch nginx
-    deb-src http://nginx.org/packages/debian/ stretch nginx
-
-Update apt-cache and install nginx to your system.
+Install nginx to your system (if you did not already do so).
 
     sudo update
     sudo apt-get install nginx
 
-Now configure a proxy configuration so that your instance of nginx will serve / prox the content of / for the
-**Wombag** server. To do so, you will need a configuration along this example:
+Now configure a proxy configuration so that your instance of nginx will serve / prox the content of / for the **Wombag** server. To do so, you will need a configuration along this example:
 
     server {
         listen   443;
@@ -145,7 +142,7 @@ Please check this site for updates on what TLS settings currently make sense:
 
 Now run or reset your nginx and start your instance of **Wombag**.
 
-Thats it, your instance of **Wombag** should run as expected. All logs are sent to stdout for now. Have a look at *config.json* if you want to change the options.
+Thats it, your instance of **Wombag** should run as expected. All logs are sent to stdout for now. Have a look at *wombag.config.json* if you want to change the options.
 
 ## Configuration ##
 
@@ -155,7 +152,7 @@ All parameters which can be configured right now are in the file *wombag.config.
 
 Point your Wallabag client to the root of **Wombag**. The rest should work as expected.
 
-If you want to play around with the API for a bit, you might be interested in these curl examples:
+If you want to play around with the API for a bit, you might be interested in these curl examples (replace 0.0.0.0 with your domain or IP):
 
 * add entry: _curl -X POST 'http://0.0.0.0:8081/api/entries/' --data 'url=http://test' -H 'Content-Type:application/x-www-form-urlencoded' -H "Authorization: Bearer (your access token)"_
 
@@ -172,7 +169,7 @@ If you know Go (or a bit of Angular for a nifty Web Frontend) and would like to 
 
 ## Dependencies ##
 
-Dependencies are managed in the "vendor" folder. Just go to the root of this project and "gb build all" to compile the projects binaries (for your platform).
+Dependencies are managed in the "vendor" folder.
 
 ## License ##
 

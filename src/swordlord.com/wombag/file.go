@@ -1,4 +1,5 @@
 package wombag
+
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -30,39 +31,56 @@ package wombag
 -----------------------------------------------------------------------------*/
 
 import (
+	"github.com/sirupsen/logrus"
 	"io/ioutil"
 	"os"
 )
 
-func EnsureTemplateFilesExist() () {
+func EnsureTemplateFilesExist() {
 
-	if _, err := os.Stat("./templates/"); os.IsNotExist(err) {
-		os.MkdirAll("./templates/", 0700)
+	tmplDir := getConfigDefault("templates.dir", "./templates/")
+
+	if tmplDir[len(tmplDir)-1:] != "/" {
+		tmplDir += "/"
 	}
 
-	err := EnsureSpecificFile("./templates/auth.tmpl", defTmplAuth)
+	if _, err := os.Stat(tmplDir); os.IsNotExist(err) {
+		os.MkdirAll(tmplDir, 0700)
+	}
+
+	err := ensureSpecificFile(tmplDir+getConfigDefault("templates.auth", "auth.tmpl"), defTmplAuth)
 	if err != nil {
-
+		LogError("Ensure template failed.", logrus.Fields{"name": "auth.tmpl", "path": tmplDir, "error": err})
 	}
 
-	err = EnsureSpecificFile("./templates/entry.tmpl", defTmplEntry)
+	err = ensureSpecificFile(tmplDir+getConfigDefault("entry.auth", "entry.tmpl"), defTmplEntry)
 	if err != nil {
-
+		LogError("Ensure template failed.", logrus.Fields{"name": "entry.tmpl", "path": tmplDir, "error": err})
 	}
 
-	err = EnsureSpecificFile("./templates/entries.tmpl", defTmplEntries)
+	err = ensureSpecificFile(tmplDir+getConfigDefault("entries.auth", "entries.tmpl"), defTmplEntries)
 	if err != nil {
-
+		LogError("Ensure template failed.", logrus.Fields{"name": "entries.tmpl", "path": tmplDir, "error": err})
 	}
 
-	err = EnsureSpecificFile("./templates/tags.tmpl", defTmplTags)
+	err = ensureSpecificFile(tmplDir+getConfigDefault("templates.tags", "tags.tmpl"), defTmplTags)
 	if err != nil {
-
+		LogError("Ensure template failed.", logrus.Fields{"name": "tags.tmpl", "path": tmplDir, "error": err})
 	}
-
 }
 
-func EnsureSpecificFile(pathToTemplate string, byTemplate []byte) (error) {
+func getConfigDefault(config string, defaultValue string) string {
+
+	s := GetStringFromConfig(config)
+
+	if len(s) == 0 {
+		s = defaultValue
+	}
+
+	return s
+}
+
+func ensureSpecificFile(pathToTemplate string, byTemplate []byte) error {
 
 	if _, err := os.Stat(pathToTemplate); os.IsNotExist(err) {
 

@@ -1,11 +1,12 @@
 package main
+
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
  **
  ** the alternative, native backend for your Wallabag apps
  **
- ** Copyright 2017-18 by SwordLord - the coding crew - http://www.swordlord.com
+ ** Copyright 2017-19 by SwordLord - the coding crew - http://www.swordlord.com
  ** and contributing authors
  **
  ** This program is free software; you can redistribute it and/or modify it
@@ -43,6 +44,8 @@ func main() {
 
 	// Initialise env and params
 	wombag.InitConfig()
+
+	wombag.EnsureTemplateFilesExist()
 
 	// Initialise database
 	// todo: make sure database is working as expected, chicken out otherwise
@@ -106,13 +109,13 @@ func main() {
 
 		// give the user the possibility to trace and profile the app
 		/*
-		TODO RE ADD
-		r.GET("/debug/pprof/block", pprofHandler(pprof.Index))
-		r.GET("/debug/pprof/heap", pprofHandler(pprof.Index))
-		r.GET("/debug/pprof/profile", pprofHandler(pprof.Profile))
-		r.POST("/debug/pprof/symbol", pprofHandler(pprof.Symbol))
-		r.GET("/debug/pprof/symbol", pprofHandler(pprof.Symbol))
-		r.GET("/debug/pprof/trace", pprofHandler(pprof.Trace))
+			TODO RE ADD
+			r.GET("/debug/pprof/block", pprofHandler(pprof.Index))
+			r.GET("/debug/pprof/heap", pprofHandler(pprof.Index))
+			r.GET("/debug/pprof/profile", pprofHandler(pprof.Profile))
+			r.POST("/debug/pprof/symbol", pprofHandler(pprof.Symbol))
+			r.GET("/debug/pprof/symbol", pprofHandler(pprof.Symbol))
+			r.GET("/debug/pprof/trace", pprofHandler(pprof.Trace))
 		*/
 
 		// give the user some hints on what URLs she could test
@@ -127,7 +130,7 @@ func main() {
 	}
 
 	// have fun with wombagd
-	http.ListenAndServe(host + ":" + port, n)
+	http.ListenAndServe(host+":"+port, n)
 }
 
 /*

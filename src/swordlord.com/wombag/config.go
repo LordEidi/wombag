@@ -1,11 +1,12 @@
 package wombag
+
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
  **
  ** the alternative, native backend for your Wallabag apps
  **
- ** Copyright 2017-18 by SwordLord - the coding crew - http://www.swordlord.com
+ ** Copyright 2017-19 by SwordLord - the coding crew - http://www.swordlord.com
  ** and contributing authors
  **
  ** This program is free software; you can redistribute it and/or modify it
@@ -29,12 +30,12 @@ package wombag
  **
 -----------------------------------------------------------------------------*/
 import (
+	"fmt"
+	"github.com/fsnotify/fsnotify"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"io/ioutil"
-	"log"
 )
-
-var env string
 
 func InitConfig() {
 
@@ -43,7 +44,7 @@ func InitConfig() {
 
 	// Set config file we want to read. 2 ways to do this.
 	// 1. Set config file path including file name and extension
-	//viper.SetConfigFile("./configs/config.json")
+	//viper.SetConfigFile("./configs/wombag.config.json")
 
 	// OR
 	// 2. Register path to look for config files in. It can accept multiple paths.
@@ -56,10 +57,10 @@ func InitConfig() {
 	viper.SetConfigType("json")
 
 	// viper allows watching of config files for changes (and potential reloads)
-	// viper.WatchConfig()
-	// viper.OnConfigChange(func(e fsnotify.Event) {
-	//	fmt.Println("Config file changed:", e.Name)
-	// })
+	viper.WatchConfig()
+	viper.OnConfigChange(func(e fsnotify.Event) {
+		fmt.Println("Config file changed:", e.Name)
+	})
 
 	// Find and read the config file
 	if err := viper.ReadInConfig(); err != nil {
@@ -67,21 +68,11 @@ func InitConfig() {
 		// TODO: don't just overwrite, check for existence first, then write a standard config file and move on...
 		WriteStandardConfig()
 
-		if err := viper.ReadInConfig(); err != nil {
-			// we tried it once, crash now
-				log.Fatalf("Error reading config file, %s", err)
-		}
+		LogFatal("Error reading config file. Standard config file written.", logrus.Fields{"error": err, "file": "wombag.config.json"})
 	}
 
 	// Confirm which config file is used
-	// fmt.Printf("Using config: %s\n", viper.ConfigFileUsed())
-
-	env = viper.GetString("env")
-
-	// Confirm which config file is used
-	// fmt.Printf("Env set to: %s\n", env)
-
-	EnsureTemplateFilesExist()
+	LogDebug("Loaded config.", logrus.Fields{"file": viper.ConfigFileUsed()})
 }
 
 func GetStringFromConfig(key string) string {
@@ -89,34 +80,36 @@ func GetStringFromConfig(key string) string {
 	return viper.GetString(key)
 }
 
-func GetEnv() string {
+func GetLogLevel() string {
 
-	return env
+	return viper.GetString("env")
 }
 
 //
-func WriteStandardConfig() (error) {
+func WriteStandardConfig() error {
 
 	err := ioutil.WriteFile("wombag.config.json", defaultConfig, 0700)
 
 	return err
 }
 
-var defaultConfig = []byte("{\n" +
-	"\t\"env\": \"dev\",\n" +
-	"\t\"add_demo_users\": \"true\",\n" +
-	"\t\"www\": {\n" +
-	"\t\t\"host\": \"0.0.0.0\",\n" +
-	"\t\t\"port\": \"8081\"\n" +
-	"\t},\n" +
-	"\t\"db\": {\n" +
-	"\t\t\"dialect\": \"sqlite3\",\n" +
-	"\t\t\"args\": \"wombag.db\"\n" +
-	"\t},\n" +
-	"\t\"templates\": {\n" +
-	"\t\t\"auth\": \"./templates/auth.tmpl\",\n" +
-	"\t\t\"entries\": \"./templates/entries.tmpl\",\n" +
-	"\t\t\"entry\": \"./templates/entry.tmpl\",\n" +
-	"\t\t\"tags\": \"./templates/tags.tmpl\"\n" +
-	"\t}\n" +
-	"}")
+var defaultConfig = []byte(`{
+	"env": "dev",
+	"add_demo_users": "true",
+	"www": {
+		"host": "127.0.0.1",
+		"port": "8081"
+	},
+	"db": {
+		"dialect": "sqlite3",
+		"args": "wombag.db"
+	},
+	"templates": {
+		"dir": "./templates/",
+		"auth": "auth.tmpl",
+		"entries": "entries.tmpl",
+		"entry": "entry.tmpl",
+		"tags": "tags.tmpl"
+	}
+}
+`)

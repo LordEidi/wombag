@@ -1,0 +1,33 @@
+# standard systemd config for gohjasmind, you might want to change a few things...
+[Unit]
+Description=wombagd reat it later server
+ConditionPathExists=/home/wombag/app
+After=network.target
+
+[Service]
+Type=simple
+User=gohjasmind
+Group=gohjasmind
+LimitNOFILE=1024
+
+Restart=on-failure
+RestartSec=10
+startLimitIntervalSec=60
+
+WorkingDirectory=/home/gohjasmind/app
+ExecStart=/home/gohjasmind/app/gohjasmind
+
+PermissionsStartOnly=true
+# make sure log directory exists and owned by syslog
+# either make some path and change StandardOutput=file:/var/log/gohjasmind and add logrotation
+# or write to syslog
+#ExecStartPre=/bin/mkdir -p /var/log/gohjasmind
+#ExecStartPre=/bin/chown root:adm /var/log/gohjasmind
+#ExecStartPre=/bin/chmod 755 /var/log/gohjasmind
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=gohjasmind
+ 
+[Install]
+WantedBy=multi-user.target
+

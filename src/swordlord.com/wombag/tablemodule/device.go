@@ -1,11 +1,12 @@
 package tablemodule
+
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
  **
  ** the alternative, native backend for your Wallabag apps
  **
- ** Copyright 2017-18 by SwordLord - the coding crew - http://www.swordlord.com
+ ** Copyright 2017-19 by SwordLord - the coding crew - http://www.swordlord.com
  ** and contributing authors
  **
  ** This program is free software; you can redistribute it and/or modify it
@@ -44,14 +45,14 @@ func ValidateDeviceInDB(deviceId, deviceToken string) (model.Device, error) {
 
 	token, err := hashPassword(deviceToken)
 	if err != nil {
-		log.Printf("Error with hashing password %q: %s\n", token, err )
+		log.Printf("Error with hashing password %q: %s\n", token, err)
 		return model.Device{}, err
 	}
 
 	retDB := db.Where("id = ?", deviceId).First(&device)
 
 	if retDB.Error != nil {
-		log.Printf("Login of device failed %q: %s\n", deviceId, retDB.Error )
+		log.Printf("Login of device failed %q: %s\n", deviceId, retDB.Error)
 		return model.Device{}, retDB.Error
 	}
 
@@ -66,10 +67,18 @@ func ValidateDeviceInDB(deviceId, deviceToken string) (model.Device, error) {
 		return model.Device{}, err
 	}
 
-	u1 := uuid.NewV4()
+	u1, err := uuid.NewV4()
+	if err != nil {
+		log.Printf("Could not generate uuid for access token: %s\n", err)
+		return model.Device{}, err
+	}
 	device.AccessToken = u1.String()
 
-	u2 := uuid.NewV4()
+	u2, err := uuid.NewV4()
+	if err != nil {
+		log.Printf("Could not generate uuid for access token: %s\n", err)
+		return model.Device{}, err
+	}
 	device.RefreshToken = u2.String()
 
 	// TODO: set sensible validation time and validate it when authenticating
@@ -77,7 +86,7 @@ func ValidateDeviceInDB(deviceId, deviceToken string) (model.Device, error) {
 
 	updDB := db.Save(&device)
 	if updDB.Error != nil {
-		log.Printf("Updating of AccessToken failed %q: %s\n", deviceId, retDB.Error )
+		log.Printf("Updating of AccessToken failed %q: %s\n", deviceId, retDB.Error)
 		return model.Device{}, retDB.Error
 	}
 
@@ -93,7 +102,7 @@ func ValidateAccessTokenInDB(accessToken string) (model.Device, error) {
 	retDB := db.Where("access_token = ?", accessToken).First(&device)
 
 	if retDB.Error != nil {
-		log.Printf("Login of device failed %s\n", retDB.Error )
+		log.Printf("Login of device failed %s\n", retDB.Error)
 		return model.Device{}, retDB.Error
 	}
 
@@ -129,7 +138,7 @@ func AddDevice(name string, password string, user string) (model.Device, error) 
 
 	pwd, err := hashPassword(password)
 	if err != nil {
-		log.Printf("Error with hashing password %q: %s\n", password, err )
+		log.Printf("Error with hashing password %q: %s\n", password, err)
 		return model.Device{}, err
 	}
 
@@ -153,7 +162,7 @@ func UpdateDevice(name string, password string) error {
 
 	pwd, err := hashPassword(password)
 	if err != nil {
-		log.Printf("Error with hashing password %q: %s\n", password, err )
+		log.Printf("Error with hashing password %q: %s\n", password, err)
 		return err
 	}
 
