@@ -1,4 +1,5 @@
 package tablemodule
+
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -51,17 +52,16 @@ func NewFilter() Filter {
 }
 
 type Filter struct {
+	EntryId uint   `form:"entry" json:"entry"`     // Entry Id to filter for
+	Tags    string `form:"tags" json:"tags"`       // tag1,tag2,tag3 	a comma-separated list of tags.
+	Starred int    `form:"starred" json:"starred"` // 1 or 0 	entry already starred
+	Archive int    `form:"archive" json:"archive"` // 1 or 0 	entry already archived
 
-	EntryId 	uint 	`form:"entry" json:"entry"` 	// Entry Id to filter for
-	Tags 		string 	`form:"tags" json:"tags"` 		// tag1,tag2,tag3 	a comma-separated list of tags.
-	Starred 	int 	`form:"starred" json:"starred"` // 1 or 0 	entry already starred
-	Archive 	int 	`form:"archive" json:"archive"` // 1 or 0 	entry already archived
-
-	Sort 		string 	`form:"sort" json:"sort"` 		// created or updated, default created  sort entries by date.
-	Order 		string 	`form:"order" json:"order"` 		// asc, desc, default desc 	order of sort.
-	Page 		int 	`form:"page" json:"page"` // 1, what page you want
-	PerPage 	int 	`form:"perpage" json:"perpage"` // 30, results per page
-	Since 		int 	`form:"since" json:"since"` // default 0, The timestamp since when you want entries updated.
+	Sort    string `form:"sort" json:"sort"`       // created or updated, default created  sort entries by date.
+	Order   string `form:"order" json:"order"`     // asc, desc, default desc 	order of sort.
+	Page    int    `form:"page" json:"page"`       // 1, what page you want
+	PerPage int    `form:"perpage" json:"perpage"` // 30, results per page
+	Since   int    `form:"since" json:"since"`     // default 0, The timestamp since when you want entries updated.
 }
 
 func GetEntryTyped(entryId int) model.Entry {
@@ -75,7 +75,7 @@ func GetEntryTyped(entryId int) model.Entry {
 	entry.Tags = tags
 
 	if query.Error != nil {
-
+		wombag.LogError(query.Error.Error(), nil)
 	}
 
 	return entry
@@ -138,10 +138,10 @@ func GetEntries(withDetails bool) [][]string {
 
 		if withDetails {
 
-			entries = append(entries, []string{ entry.Title, entry.Content, entry.CrtDat.Format("2006-01-02 15:04:05"), entry.UpdDat.Format("2006-01-02 15:04:05")})
+			entries = append(entries, []string{entry.Title, entry.Content, entry.CrtDat.Format("2006-01-02 15:04:05"), entry.UpdDat.Format("2006-01-02 15:04:05")})
 		} else {
 
-			entries = append(entries, []string{ entry.Title, entry.CrtDat.Format("2006-01-02 15:04:05"), entry.UpdDat.Format("2006-01-02 15:04:05")})
+			entries = append(entries, []string{entry.Title, entry.CrtDat.Format("2006-01-02 15:04:05"), entry.UpdDat.Format("2006-01-02 15:04:05")})
 		}
 	}
 
@@ -159,19 +159,19 @@ func ExportEntries(file *os.File, ttl int) {
 
 	log.Fatal("ExportEntries not implemented yet")
 	/*
-	entries := getEntries(false)
+		entries := getEntries(false)
 
-	for _, entry := range entries {
+		for _, entry := range entries {
 
-			//file.WriteString(entry[0] + "," + entry[1] + "," + entry + "\n")
-	}
+				//file.WriteString(entry[0] + "," + entry[1] + "," + entry + "\n")
+		}
 	*/
 }
 
 func AddEntry(Url string) (model.Entry, error) {
 
 	response, err := http.Get(Url)
-    if err != nil {
+	if err != nil {
 		log.Fatal(err)
 		return model.Entry{}, err
 	}
@@ -204,7 +204,7 @@ func AddEntry(Url string) (model.Entry, error) {
 	retDB := db.Create(&entry)
 
 	if retDB.Error != nil {
-		log.Printf("Error with Entry %q: %s\n", Url, retDB.Error )
+		log.Printf("Error with Entry %q: %s\n", Url, retDB.Error)
 		log.Fatal(retDB.Error)
 		return model.Entry{}, retDB.Error
 	}
@@ -231,7 +231,7 @@ func UpdateEntry(Id string, Starred bool, Archived bool, Title string) {
 	retDB := db.Model(&model.Entry{}).Where("entry_id=?", Id).Updates(fields)
 
 	if retDB.Error != nil {
-		log.Printf("Error with Entry %q: %s\n", Id, retDB.Error )
+		log.Printf("Error with Entry %q: %s\n", Id, retDB.Error)
 		log.Fatal(retDB.Error)
 		return
 	}

@@ -1,4 +1,5 @@
 package render
+
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -43,10 +44,23 @@ type EntryJSON struct {
 
 type EntriesJSON struct {
 	Entries []model.Entry
-	Page int
-	Limit int
-	Server string
-	Port string
+	Page    int
+	Size    int
+	Limit   int
+	Server  string
+	Port    string
+}
+
+func (es *EntriesJSON) SetEntries(e []model.Entry) {
+
+	es.Entries = make([]model.Entry, len(e))
+	copy(es.Entries, e)
+	es.Size = len(es.Entries)
+}
+
+func (es EntriesJSON) GetEntries() []model.Entry {
+
+	return es.Entries
 }
 
 func (r EntryJSON) Render(w http.ResponseWriter) (err error) {
@@ -60,7 +74,7 @@ func (r EntryJSON) Render(w http.ResponseWriter) (err error) {
 func (r EntriesJSON) Render(w http.ResponseWriter) (err error) {
 
 	r.Server = wombag.GetStringFromConfig("www.host")
-	r.Port =  wombag.GetStringFromConfig("www.port")
+	r.Port = wombag.GetStringFromConfig("www.port")
 
 	if err = writeEntriesJSON(w, r); err != nil {
 		fmt.Printf("Error while rendering %v\n", err)

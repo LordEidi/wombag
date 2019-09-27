@@ -1,4 +1,5 @@
 package handler
+
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -41,31 +42,28 @@ import (
 
 // standard query params usually sent with requests
 type QueryParams struct {
-
-	Url			string	`schema:"url" validate:"omitempty,url"` 		// Url for the entry.
-	Title		string 	`schema:"title" validate:"-"` 	// Optional, we'll get the title from the page.
-	Tags 		string 	`schema:"tags" validate:"-"` 		// tag1,tag2,tag3 	a comma-separated list of tags.
-	Starred 	int 	`schema:"starred" validate:"omitempty,min=0,max=1"` // 1 or 0 	entry already starred
-	Archive 	int 	`schema:"archive" validate:"omitempty,min=0,max=1"` // 1 or 0 	entry already archived
+	Url     string `schema:"url" validate:"omitempty,url"`             // Url for the entry.
+	Title   string `schema:"title" validate:"-"`                       // Optional, we'll get the title from the page.
+	Tags    string `schema:"tags" validate:"-"`                        // tag1,tag2,tag3 	a comma-separated list of tags.
+	Starred int    `schema:"starred" validate:"omitempty,min=0,max=1"` // 1 or 0 	entry already starred
+	Archive int    `schema:"archive" validate:"omitempty,min=0,max=1"` // 1 or 0 	entry already archived
 }
 
 // the form params which are sent to get an access token
 type AccessTokenReqParams struct {
-
-	ClientID		string	`schema:"client_id" form:"client_id" json:"client_id"` 		// aa
-	ClientSecret	string	`schema:"client_secret" form:"client_secret" json:"client_secret"` // aa
-	GrantType		string	`schema:"grant_type" form:"grant_type" json:"grant_type"` 		// password
-	Password		string	`schema:"password" form:"password" json:"password"` 			// aa
-	UserName		string	`schema:"username" form:"username" json:"username"` 			// aa
+	ClientID     string `schema:"client_id" form:"client_id" json:"client_id"`             // aa
+	ClientSecret string `schema:"client_secret" form:"client_secret" json:"client_secret"` // aa
+	GrantType    string `schema:"grant_type" form:"grant_type" json:"grant_type"`          // password
+	Password     string `schema:"password" form:"password" json:"password"`                // aa
+	UserName     string `schema:"username" form:"username" json:"username"`                // aa
 }
 
 type oAuth2 struct {
-
-	AccessToken 	string 	`json:"access_token"`	//	"..."
-	ExpirationDate 	uint 	`json:"expires_in"` 	// 3600,
-	RefreshToken 	string 	`json:"refresh_token"` 	// "...",
-	Scope 			string 	`json:"scope"` 			// null,
-	TokenType 		string 	`json:"token_type"` 	// "bearer"
+	AccessToken    string `json:"access_token"`  //	"..."
+	ExpirationDate uint   `json:"expires_in"`    // 3600,
+	RefreshToken   string `json:"refresh_token"` // "...",
+	Scope          string `json:"scope"`         // null,
+	TokenType      string `json:"token_type"`    // "bearer"
 }
 
 func getNewOAuth2() oAuth2 {
@@ -79,18 +77,23 @@ func getNewOAuth2() oAuth2 {
 	return oa
 }
 
-func OnRoot(w http.ResponseWriter, req *http.Request){
+func OnRoot(w http.ResponseWriter, req *http.Request) {
 
 	respond.WithMessage(w, http.StatusOK, "Welcome to Wombag")
 }
 
-func OnRetrieveVersionNumber(w http.ResponseWriter, req *http.Request){
+func OnNoMatch(w http.ResponseWriter, req *http.Request) {
 
-	// TODO randomise the reply text
-	respond.WithMessage(w, http.StatusOK, "This is Wombag")
+	respond.WithMessage(w, http.StatusNotFound, "Resource not found")
 }
 
-func OnOAuth(w http.ResponseWriter, req *http.Request){
+func OnRetrieveVersionNumber(w http.ResponseWriter, req *http.Request) {
+
+	// TODO randomise the reply text
+	respond.WithMessage(w, http.StatusOK, "Welcome, this is Wombag")
+}
+
+func OnOAuth(w http.ResponseWriter, req *http.Request) {
 
 	var form AccessTokenReqParams
 
@@ -98,11 +101,11 @@ func OnOAuth(w http.ResponseWriter, req *http.Request){
 
 	if err1 != nil {
 		fmt.Printf("Error when binding %v\n", err1)
-		respond.WithMessage(w, http.StatusBadRequest, "An Error occured: " + err1.Error())
+		respond.WithMessage(w, http.StatusBadRequest, "An Error occured: "+err1.Error())
 	}
 
 	if form.ClientID == "" || form.ClientSecret == "" {
-		log.Printf("Missing authentication credentials. Access denied.\n" )
+		log.Printf("Missing authentication credentials. Access denied.\n")
 		respond.WithMessage(w, http.StatusUnauthorized, "Access not authorised")
 		return
 	}
@@ -110,7 +113,7 @@ func OnOAuth(w http.ResponseWriter, req *http.Request){
 	device, err := tablemodule.ValidateDeviceInDB(form.ClientID, form.ClientSecret)
 
 	if err != nil {
-		log.Printf("Wrong Authentication Request. Access denied.\n" )
+		log.Printf("Wrong Authentication Request. Access denied.\n")
 		respond.WithMessage(w, http.StatusUnauthorized, "Access not authorised")
 		return
 	}
@@ -125,13 +128,13 @@ func OnOAuth(w http.ResponseWriter, req *http.Request){
 	respond.Render(w, http.StatusOK, wtext)
 }
 
-func bind(obj interface{}, req *http.Request) (e error){
+func bind(obj interface{}, req *http.Request) (e error) {
 
 	// parse the URL and form and put result in req.Form and req.PostForm
 	err := req.ParseForm()
 
 	if err != nil {
-		log.Printf("Binding: Parsing Form returned error: %s.\n", err )
+		log.Printf("Binding: Parsing Form returned error: %s.\n", err)
 		return err
 	}
 
@@ -144,14 +147,14 @@ func bind(obj interface{}, req *http.Request) (e error){
 	errDec := decoder.Decode(obj, req.Form)
 
 	if errDec != nil {
-		log.Printf("Binding: Decoding Form returned error: %s.\n", err )
+		log.Printf("Binding: Decoding Form returned error: %s.\n", err)
 		return err
 	}
 
 	return
 }
 
-func isValid(s interface{}) (bool) {
+func isValid(s interface{}) bool {
 
 	isValid := true
 

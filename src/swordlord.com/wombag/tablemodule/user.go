@@ -1,4 +1,5 @@
 package tablemodule
+
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -29,17 +30,17 @@ package tablemodule
  **
 -----------------------------------------------------------------------------*/
 import (
+	"fmt"
 	"golang.org/x/crypto/bcrypt"
 	"log"
-	"fmt"
-	"swordlord.com/wombag/model"
 	"swordlord.com/wombag"
+	"swordlord.com/wombag/model"
 )
 
 // TODO return permission, not true/false. when empty permission, no access...
-func ValidateUserInDB(name, password string) (bool) {
+func ValidateUserInDB(name, password string) bool {
 
-	permissions := []string{ }
+	permissions := []string{}
 	// TODO get permissions from db
 	permissions = append(permissions, "permission_from_DB")
 
@@ -50,7 +51,7 @@ func ValidateUserInDB(name, password string) (bool) {
 	retDB := db.Where("name = ? AND pwd = ?", name, password).First(&user)
 
 	if retDB.Error != nil {
-		log.Printf("Login of user failed %q: %s\n", name, retDB.Error )
+		log.Printf("Login of user failed %q: %s\n", name, retDB.Error)
 		log.Fatal(retDB.Error)
 		return false
 	}
@@ -82,7 +83,7 @@ func ListUser() {
 
 	for _, user := range rows {
 
-		users = append(users, []string{ user.Name, user.Pwd, user.CrtDat.Format("2006-01-02 15:04:05"), user.UpdDat.Format("2006-01-02 15:04:05")})
+		users = append(users, []string{user.Name, user.Pwd, user.CrtDat.Format("2006-01-02 15:04:05"), user.UpdDat.Format("2006-01-02 15:04:05")})
 	}
 
 	wombag.WriteTable([]string{"Name", "Pwd", "CrtDat", "UpdDat"}, users)
@@ -94,7 +95,7 @@ func AddUser(name string, password string) (model.User, error) {
 
 	pwd, err := hashPassword(password)
 	if err != nil {
-		log.Printf("Error with hashing password %q: %s\n", password, err )
+		log.Printf("Error with hashing password %q: %s\n", password, err)
 		return model.User{}, err
 	}
 
@@ -102,7 +103,7 @@ func AddUser(name string, password string) (model.User, error) {
 	retDB := db.Create(&user)
 
 	if retDB.Error != nil {
-		log.Printf("Error with User %q: %s\n", name, retDB.Error )
+		log.Printf("Error with User %q: %s\n", name, retDB.Error)
 		log.Fatal(retDB.Error)
 		return model.User{}, retDB.Error
 	}
@@ -117,14 +118,14 @@ func UpdateUser(name string, password string) error {
 
 	pwd, err := hashPassword(password)
 	if err != nil {
-		log.Printf("Error with hashing password %q: %s\n", password, err )
+		log.Printf("Error with hashing password %q: %s\n", password, err)
 		return err
 	}
 
-	retDB := db.Model(&model.User{}).Where("Name=?", name).Update("Pwd", pwd)
+	retDB := db.Model(&model.User{}).Where("name=?", name).Update("pwd", pwd)
 
 	if retDB.Error != nil {
-		log.Printf("Error with User %q: %s\n", name, retDB.Error )
+		log.Printf("Error with User %q: %s\n", name, retDB.Error)
 		return retDB.Error
 	}
 
@@ -142,7 +143,7 @@ func DeleteUser(name string) {
 	retDB := db.Where("name = ?", name).First(&user)
 
 	if retDB.Error != nil {
-		log.Printf("Error with User %q: %s\n", name, retDB.Error )
+		log.Printf("Error with User %q: %s\n", name, retDB.Error)
 		log.Fatal(retDB.Error)
 		return
 	}
@@ -175,8 +176,7 @@ func hashPassword(pwd string) (string, error) {
 	//fmt.Println(err) // nil means it is a match
 }
 
-
-func checkHashedPassword(hashedPassword string, password string) (error) {
+func checkHashedPassword(hashedPassword string, password string) error {
 
 	pwd := []byte(password)
 	hashedPwd := []byte(hashedPassword)

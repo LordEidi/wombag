@@ -1,7 +1,7 @@
 {
     "_embedded": {
         "items": [
-        {{range $key,$entry := .Entries}}
+        {{range $key,$entry := .GetEntries }}
         {
             "_links": {
                 "self": {
@@ -44,6 +44,6 @@
     "limit": {{ .Limit }},
     "page": {{ .Page }},
     "pages": {{ .Page }},
-    "total": {{ .Page }}
+    "total": {{ .Size }}
 }
 

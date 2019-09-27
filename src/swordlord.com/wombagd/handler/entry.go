@@ -1,4 +1,5 @@
 package handler
+
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -38,7 +39,7 @@ import (
 	"swordlord.com/wombagd/respond"
 )
 
-func OnCreateEntry(w http.ResponseWriter, req *http.Request){
+func OnCreateEntry(w http.ResponseWriter, req *http.Request) {
 
 	var form QueryParams
 
@@ -46,7 +47,7 @@ func OnCreateEntry(w http.ResponseWriter, req *http.Request){
 
 	if err != nil {
 		fmt.Printf("Error when binding %v\n", err)
-		respond.WithMessage(w, http.StatusBadRequest, "An Error occured: " + err.Error())
+		respond.WithMessage(w, http.StatusBadRequest, "An Error occured: "+err.Error())
 		return
 	}
 
@@ -58,20 +59,20 @@ func OnCreateEntry(w http.ResponseWriter, req *http.Request){
 
 	entry, err := tablemodule.AddEntry(form.Url)
 	if err != nil {
-		respond.WithMessage(w, http.StatusInternalServerError, "An Error occured: " + err.Error())
+		respond.WithMessage(w, http.StatusInternalServerError, "An Error occured: "+err.Error())
 	}
 
 	// TODO get correct entry from update...
 	entryJSON := render.EntryJSON{}
 	entryJSON.Entry = entry
-	respond.Render(w,http.StatusOK, entryJSON)
+	respond.Render(w, http.StatusOK, entryJSON)
 }
 
-func OnRetrieveEntries(w http.ResponseWriter, req *http.Request){
-/*
-	vars := mux.Vars(req)
+func OnRetrieveEntries(w http.ResponseWriter, req *http.Request) {
+	/*
+		vars := mux.Vars(req)
 
-	fmt.Fprintf(w, "Read: %v\n", vars["category"])
+		fmt.Fprintf(w, "Read: %v\n", vars["category"])
 	*/
 
 	form := tablemodule.NewFilter()
@@ -80,7 +81,7 @@ func OnRetrieveEntries(w http.ResponseWriter, req *http.Request){
 
 	if err != nil {
 		fmt.Printf("Error when binding %v\n", err)
-		respond.WithMessage(w, http.StatusBadRequest, "An Error occured: " + err.Error())
+		respond.WithMessage(w, http.StatusBadRequest, "An Error occured: "+err.Error())
 		return
 	}
 
@@ -91,15 +92,14 @@ func OnRetrieveEntries(w http.ResponseWriter, req *http.Request){
 	}
 
 	entries := render.EntriesJSON{}
-	entries.Entries = tablemodule.GetEntriesTyped(&form)
+	entries.SetEntries(tablemodule.GetEntriesTyped(&form))
 	entries.Limit = form.PerPage
 	entries.Page = form.Page
 
-	respond.Render(w,http.StatusOK, entries)
-
+	respond.Render(w, http.StatusOK, entries)
 }
 
-func OnDeleteEntry(w http.ResponseWriter, req *http.Request){
+func OnDeleteEntry(w http.ResponseWriter, req *http.Request) {
 
 	vars := mux.Vars(req)
 
@@ -112,17 +112,30 @@ func OnDeleteEntry(w http.ResponseWriter, req *http.Request){
 	}
 }
 
-func OnGetEntry(w http.ResponseWriter, req *http.Request){
+func OnGetEntry(w http.ResponseWriter, req *http.Request) {
 
 	vars := mux.Vars(req)
 
-	w.WriteHeader(http.StatusNotImplemented)
-	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, "Get: %v with extension %s\n", vars["entry"], vars["ext"])
+	sId := vars["entry"]
 
+	id, err := strconv.Atoi(sId)
+
+	if err != nil {
+		id = 0
+	}
+
+	entry := render.EntryJSON{}
+	entry.Entry = tablemodule.GetEntryTyped(id)
+	respond.Render(w, http.StatusOK, entry)
+
+	/*
+		w.WriteHeader(http.StatusNotImplemented)
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, "Get: %v with extension %s\n", vars["entry"], vars["ext"])
+	*/
 }
 
-func OnChangeEntry(w http.ResponseWriter, req *http.Request){
+func OnChangeEntry(w http.ResponseWriter, req *http.Request) {
 
 	var form QueryParams
 	// This will infer what binder to use depending on the content-type header.
@@ -130,7 +143,7 @@ func OnChangeEntry(w http.ResponseWriter, req *http.Request){
 
 	if err != nil {
 		fmt.Printf("Error when binding %v\n", err)
-		respond.WithMessage(w, http.StatusBadRequest, "An Error occured: " + err.Error())
+		respond.WithMessage(w, http.StatusBadRequest, "An Error occured: "+err.Error())
 		return
 	}
 
@@ -155,15 +168,15 @@ func OnChangeEntry(w http.ResponseWriter, req *http.Request){
 
 	entry := render.EntryJSON{}
 	entry.Entry = tablemodule.GetEntryTyped(id)
-	respond.Render(w,http.StatusOK, entry)
+	respond.Render(w, http.StatusOK, entry)
 }
 
-func OnGetEntryFormatted(w http.ResponseWriter, req *http.Request){
+func OnGetEntryFormatted(w http.ResponseWriter, req *http.Request) {
 
 	respond.NotImplementedYet(w)
 }
 
-func OnReloadEntry(w http.ResponseWriter, req *http.Request){
+func OnReloadEntry(w http.ResponseWriter, req *http.Request) {
 
 	respond.NotImplementedYet(w)
 }

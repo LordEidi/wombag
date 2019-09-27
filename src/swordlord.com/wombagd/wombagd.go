@@ -98,9 +98,8 @@ func main() {
 
 	api.HandleFunc("/entries/{entry:[0-9]+}{ext:(?:.json|.txt|.xml)?}", handler.OnGetEntry).Methods("GET")
 
-	// TODO set a bypass function when no path triggers
-	//r.GET('/', onHitRoot);
-	//r.bypassed.add(onBypass);
+	// bypass function when no path triggers
+	gr.NotFoundHandler = http.HandlerFunc(handler.OnNoMatch)
 
 	host := wombag.GetStringFromConfig("www.host")
 	port := wombag.GetStringFromConfig("www.port")

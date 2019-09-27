@@ -20,6 +20,7 @@ before_install:
   - cd
   - go get -u -v github.com/spf13/viper
   - go get -u -v github.com/spf13/cobra
+  - go get -u -v github.com/fsnotify/fsnotify
   - go get -u -v github.com/PuerkitoBio/goquery
   - go get -u -v github.com/gorilla/schema
   - go get -u -v gopkg.in/go-playground/validator.v9
