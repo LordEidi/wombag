@@ -94,8 +94,6 @@ func writeEntryJSON(w http.ResponseWriter, entry EntryJSON) error {
 
 	var t *template.Template
 
-	writeContentType(w, jsonContentType)
-
 	t = template.Must(template.New("entry.tmpl").ParseFiles("./templates/entry.tmpl"))
 
 	err := t.Execute(w, entry)
@@ -110,8 +108,6 @@ func writeEntryJSON(w http.ResponseWriter, entry EntryJSON) error {
 func writeEntriesJSON(w http.ResponseWriter, entries EntriesJSON) error {
 
 	var t *template.Template
-
-	writeContentType(w, jsonContentType)
 
 	t = template.Must(template.New("entries.tmpl").ParseFiles("./templates/entries.tmpl"))
 

@@ -1,4 +1,5 @@
 package respond
+
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -34,15 +35,19 @@ import (
 	"swordlord.com/wombagd/render"
 )
 
-func Render(w http.ResponseWriter, status int, r render.Render){
+func Render(w http.ResponseWriter, status int, r render.Render) {
 
+	// TODO fix bodyallowed
+	/*
+		if !bodyAllowedForStatus(status) {
+
+			r.WriteContentType(w)
+			return
+		}
+	*/
+
+	r.WriteContentType(w)
 	w.WriteHeader(status)
-
-	if !bodyAllowedForStatus(status) {
-
-		r.WriteContentType(w)
-		return
-	}
 
 	if err := r.Render(w); err != nil {
 		panic(err)
@@ -62,17 +67,16 @@ func bodyAllowedForStatus(status int) bool {
 	return true
 }
 
+func NotImplementedYet(w http.ResponseWriter) {
 
-func NotImplementedYet(w http.ResponseWriter){
-
-	w.WriteHeader(http.StatusNotImplemented)
 	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusNotImplemented)
 	fmt.Fprintf(w, "This function is not implemented yet\n")
 }
 
-func WithMessage(w http.ResponseWriter, status int, message string){
+func WithMessage(w http.ResponseWriter, status int, message string) {
 
-	w.WriteHeader(status)
 	w.Header().Set("Content-Type", "application/json")
-	fmt.Fprintf(w, message + "\n")
+	w.WriteHeader(status)
+	fmt.Fprintf(w, message+"\n")
 }

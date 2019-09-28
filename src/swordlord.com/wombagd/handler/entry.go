@@ -127,12 +127,6 @@ func OnGetEntry(w http.ResponseWriter, req *http.Request) {
 	entry := render.EntryJSON{}
 	entry.Entry = tablemodule.GetEntryTyped(id)
 	respond.Render(w, http.StatusOK, entry)
-
-	/*
-		w.WriteHeader(http.StatusNotImplemented)
-		w.Header().Set("Content-Type", "application/json")
-		fmt.Fprintf(w, "Get: %v with extension %s\n", vars["entry"], vars["ext"])
-	*/
 }
 
 func OnChangeEntry(w http.ResponseWriter, req *http.Request) {
