@@ -63,6 +63,11 @@ func (es EntriesJSON) GetEntries() []model.Entry {
 	return es.Entries
 }
 
+func (es EntriesJSON) GetLastIndex() int {
+
+	return es.Size - 1
+}
+
 func (r EntryJSON) Render(w http.ResponseWriter) (err error) {
 
 	if err = writeEntryJSON(w, r); err != nil {
@@ -82,12 +87,12 @@ func (r EntriesJSON) Render(w http.ResponseWriter) (err error) {
 	return
 }
 
-func (r EntryJSON) WriteContentType(w http.ResponseWriter) {
-	writeContentType(w, jsonContentType)
+func (r EntryJSON) WriteHeader(w http.ResponseWriter) {
+	writeHeader(w, jsonContentType)
 }
 
-func (r EntriesJSON) WriteContentType(w http.ResponseWriter) {
-	writeContentType(w, jsonContentType)
+func (r EntriesJSON) WriteHeader(w http.ResponseWriter) {
+	writeHeader(w, jsonContentType)
 }
 
 func writeEntryJSON(w http.ResponseWriter, entry EntryJSON) error {
@@ -126,7 +131,7 @@ func WriteJSON(w http.ResponseWriter, obj interface{}) error {
 
 	var t *template.Template
 
-	writeContentType(w, jsonContentType)
+	writeHeader(w, jsonContentType)
 
 	switch v := obj.(type) {
 		case int:

@@ -1,4 +1,5 @@
 package render
+
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -35,6 +36,5 @@ import (
 
 type Render interface {
 	Render(w http.ResponseWriter) error
-	WriteContentType(w http.ResponseWriter)
+	WriteHeader(w http.ResponseWriter)
 }
-

@@ -1,4 +1,5 @@
 package model
+
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -38,30 +39,31 @@ import (
 
 // TODO: Add CrtUsr and UpdUsr
 type Entry struct {
-	EntryId	uint `gorm:"primary_key"`
-	URL string
-	PreviewPic string
-	Domain string
-	Title string
-	Content string `sql:"type:blob"`
-	Language string
-	MimeType string
+	EntryId        uint `gorm:"primary_key"`
+	URL            string
+	PreviewPic     string
+	Domain         string
+	Title          string
+	Content        string `sql:"type:blob"`
+	Language       string
+	MimeType       string
 	PreviewPicture string
-	Tags []Tag `gorm:"-"`
-	TagsAsString string `gorm:"-"`
-	Starred bool `sql:"NOT NULL;DEFAULT:false"`
-	Archived bool `sql:"NOT NULL;DEFAULT:false"`
-	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`
-	UpdDat	time.Time `sql:"DEFAULT:current_timestamp"`
+	Tags           []Tag     `gorm:"-"`
+	TagsAsString   string    `gorm:"-"`
+	Starred        bool      `sql:"NOT NULL;DEFAULT:false"`
+	Archived       bool      `sql:"NOT NULL;DEFAULT:false"`
+	CrtDat         time.Time `sql:"DEFAULT:current_timestamp"`
+	UpdDat         time.Time `sql:"DEFAULT:current_timestamp"`
 }
 
 func (m *Entry) BeforeUpdate(scope *gorm.Scope) (err error) {
 
 	scope.SetColumn("UpdDat", time.Now())
-	return  nil
+	return nil
 }
 
 func (e Entry) GetContentJSON() string {
+
 	b, err := json.Marshal(e.Content)
 	if err != nil {
 		return ""
@@ -69,6 +71,7 @@ func (e Entry) GetContentJSON() string {
 	// remove leading "
 	jsonified := string(b)
 	return strings.Trim(jsonified, "\"")
+
 }
 
 func (e Entry) GetTitleJSON() string {
@@ -94,7 +97,6 @@ func (e Entry) GetTags() string {
 			return e.TagsAsString
 		}
 	}
-
 
 	//e.Tags = `{"id":12,"label":"dd","slug":"dd"}`
 

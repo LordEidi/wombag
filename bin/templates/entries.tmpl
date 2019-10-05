@@ -1,7 +1,8 @@
 {
     "_embedded": {
         "items": [
-        {{range $key,$entry := .GetEntries }}
+        {{ $last_index := .GetLastIndex }}
+        {{range $index,$entry := .GetEntries }}
         {
             "_links": {
                 "self": {
@@ -13,10 +14,21 @@
             "created_at": "{{ $entry.CrtDat }}",
             "domain_name": "{{ $entry.Domain }}",
             "id": {{ $entry.EntryId }},
-            "is_archived": {{ $entry.Archived }},
-            "is_starred": {{ $entry.Starred }},
+            "is_archived": {{ if $entry.Archived }}1{{ else }}0{{ end }},
+            "is_starred": {{ if $entry.Starred }}1{{ else }}0{{ end }},
             "language": "{{ $entry.Language }}",
             "mimetype": "text/html",
+
+            "headers": null,
+            "http_status": "",
+            "is_public": 0,
+            "origin_url": null,
+            "preview_picture": null,
+            "published_at": null,
+            "published_by": null,
+            "starred_at": null,
+            "uid": null,
+
             "preview_picture": "{{ $entry.PreviewPicture }}",
             "reading_time": 2,
             "tags": [{{ $entry.GetTags }}],
@@ -25,8 +37,8 @@
             "url": "{{ $entry.URL }}",
             "user_email": "",
             "user_id": 1,
-            "user_name": "wallabag"
-        },
+            "user_name": "wombag"
+        }{{ if lt $index $last_index }},{{ end }}
         {{end}}
         ]
     },

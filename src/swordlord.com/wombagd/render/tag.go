@@ -1,4 +1,5 @@
 package render
+
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -48,15 +49,15 @@ func (r TagsJSON) Render(w http.ResponseWriter) (err error) {
 	return
 }
 
-func (r TagsJSON) WriteContentType(w http.ResponseWriter) {
-	writeContentType(w, jsonContentType)
+func (r TagsJSON) WriteHeader(w http.ResponseWriter) {
+	writeHeader(w, jsonContentType)
 }
 
 func writeTagsJSON(w http.ResponseWriter, tags TagsJSON) error {
 
 	var t *template.Template
 
-	writeContentType(w, jsonContentType)
+	writeHeader(w, jsonContentType)
 
 	t = template.Must(template.New("tags.tmpl").ParseFiles("./templates/tags.tmpl"))
 

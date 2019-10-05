@@ -37,8 +37,10 @@ import (
 //var jsonContentType = []string{"application/json; charset=utf-8"}
 var jsonContentType = "application/json; charset=utf-8"
 
-//func writeContentType(w http.ResponseWriter, value []string) {
-func writeContentType(w http.ResponseWriter, value string) {
+//var jsonContentType = "application/json"
+
+//func writeHeader(w http.ResponseWriter, value []string) {
+func writeHeader(w http.ResponseWriter, value string) {
 	// TODO set or no replace?
 	/*
 		header := w.Header()
@@ -46,6 +48,6 @@ func writeContentType(w http.ResponseWriter, value string) {
 			header["Content-Type"] = value
 		}
 	*/
-
+	w.Header().Set("Server", "Wombag")
 	w.Header().Set("Content-Type", value)
 }

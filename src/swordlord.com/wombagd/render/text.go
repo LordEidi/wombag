@@ -1,4 +1,5 @@
 package render
+
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -46,12 +47,12 @@ func (r WombagText) Render(w http.ResponseWriter) (err error) {
 	return
 }
 
-func (r WombagText) WriteContentType(w http.ResponseWriter) {
-	writeContentType(w, jsonContentType)
+func (r WombagText) WriteHeader(w http.ResponseWriter) {
+	writeHeader(w, jsonContentType)
 }
 
 func WriteJSON(w http.ResponseWriter, obj interface{}) error {
-	writeContentType(w, jsonContentType)
+	writeHeader(w, jsonContentType)
 
 	t := template.Must(template.New("auth.tmpl").ParseFiles("./templates/auth.tmpl"))
 	err := t.Execute(w, obj)

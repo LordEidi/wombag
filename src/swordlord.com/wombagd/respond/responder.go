@@ -41,12 +41,12 @@ func Render(w http.ResponseWriter, status int, r render.Render) {
 	/*
 		if !bodyAllowedForStatus(status) {
 
-			r.WriteContentType(w)
+			r.WriteHeader(w)
 			return
 		}
 	*/
 
-	r.WriteContentType(w)
+	r.WriteHeader(w)
 	w.WriteHeader(status)
 
 	if err := r.Render(w); err != nil {
