@@ -3,7 +3,7 @@ Wombag
 
 ![Wombag](https://raw.githubusercontent.com/LordEidi/wombag/master/wombag_logo.png)
 
-**Wombag** (c) 2017-19 by [SwordLord - the coding crew](https://www.swordlord.com/)
+**Wombag** (c) 2017-20 by [SwordLord - the coding crew](https://www.swordlord.com/)
 
 ## Introduction ##
 
@@ -79,7 +79,7 @@ Please see journalctl for errors in your log.
 
 If you do not like systemd or if this is not an option, you might want to run it with supervisord. First install the required software:
 
-    sudo apt-get install supervisor
+    sudo apt install supervisor
 
 Then copy the file _utilities/wombag_supervisor.conf_ into your local supervisor configuration directory. This is usually done like this:
  
@@ -93,8 +93,8 @@ Since **Wombag** does not bring it's own transport encryption, you should instal
 
 Install nginx to your system (if you did not already do so).
 
-    sudo update
-    sudo apt-get install nginx
+    sudo apt update
+    sudo apt install nginx
 
 Now configure a proxy configuration so that your instance of nginx will serve / prox the content of / for the **Wombag** server. To do so, you will need a configuration along this example:
 
@@ -169,7 +169,7 @@ If you know Go (or a bit of Angular for a nifty Web Frontend) and would like to 
 
 ## Dependencies ##
 
-Dependencies are managed in the "vendor" folder.
+Dependencies are a mess. See .travis.yml for details.
 
 ## License ##
 
