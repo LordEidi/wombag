@@ -1,4 +1,5 @@
 package model
+
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -35,21 +36,26 @@ import (
 )
 
 type Device struct {
-	Id    string `gorm:"primary_key"`
-	Token 	string
-	User	User `gorm:"ForeignKey:Name"`
-	UserName string
-	AccessToken		string
-	RefreshToken	string
-	ValidUntil	uint `sql:"DEFAULT:3600"`
-	CrtDat	time.Time `sql:"DEFAULT:current_timestamp"`
-	UpdDat	time.Time `sql:"DEFAULT:current_timestamp"`
+	Id           string `gorm:"primary_key"`
+	Token        string
+	User         User `gorm:"ForeignKey:Name"`
+	UserName     string
+	AccessToken  string
+	RefreshToken string
+	ValidUntil   uint      `sql:"DEFAULT:3600"`
+	CrtDat       time.Time `sql:"DEFAULT:current_timestamp"`
+	UpdDat       time.Time `sql:"DEFAULT:current_timestamp"`
 }
 
 func (m *Device) BeforeUpdate(scope *gorm.Scope) (err error) {
 
 	scope.SetColumn("UpdDat", time.Now())
-	return  nil
+	return nil
+}
+
+func GetAdminDevice() Device {
+
+	return Device{Id: "0", UserName: "admin", Token: "31337"}
 }
 
 /*

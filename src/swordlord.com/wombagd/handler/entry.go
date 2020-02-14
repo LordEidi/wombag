@@ -34,7 +34,9 @@ import (
 	"github.com/gorilla/mux"
 	"net/http"
 	"strconv"
+	"swordlord.com/wombag/model"
 	"swordlord.com/wombag/tablemodule"
+	"swordlord.com/wombagd/lib"
 	"swordlord.com/wombagd/render"
 	"swordlord.com/wombagd/respond"
 )
@@ -57,7 +59,9 @@ func OnCreateEntry(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
-	entry, err := tablemodule.AddEntry(form.Url)
+	device := req.Context().Value(lib.AuthDevice).(model.Device)
+
+	entry, err := tablemodule.AddEntry(device, form.Url)
 	if err != nil {
 		respond.WithMessage(w, http.StatusInternalServerError, "An Error occured: "+err.Error())
 	}
@@ -91,8 +95,10 @@ func OnRetrieveEntries(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	device := req.Context().Value(lib.AuthDevice).(model.Device)
+
 	entries := render.EntriesJSON{}
-	entries.SetEntries(tablemodule.GetEntriesTyped(&form))
+	entries.SetEntries(tablemodule.GetEntriesTyped(device, &form))
 	entries.Limit = form.PerPage
 	entries.Page = form.Page
 
@@ -124,8 +130,10 @@ func OnGetEntry(w http.ResponseWriter, req *http.Request) {
 		id = 0
 	}
 
+	device := req.Context().Value(lib.AuthDevice).(model.Device)
+
 	entry := render.EntryJSON{}
-	entry.Entry = tablemodule.GetEntryTyped(id)
+	entry.Entry = tablemodule.GetEntryTyped(device, id)
 	respond.Render(w, http.StatusOK, entry)
 }
 
@@ -152,7 +160,10 @@ func OnChangeEntry(w http.ResponseWriter, req *http.Request) {
 	sId := vars["entry"]
 	sTitle := form.Title
 
-	tablemodule.UpdateEntry(sId, form.Starred != 0, form.Archive != 0, sTitle)
+	device := req.Context().Value(lib.AuthDevice).(model.Device)
+
+	// todo what if you are not authorised?
+	tablemodule.UpdateEntry(device, sId, form.Starred != 0, form.Archive != 0, sTitle)
 
 	id, err := strconv.Atoi(sId)
 
@@ -161,7 +172,8 @@ func OnChangeEntry(w http.ResponseWriter, req *http.Request) {
 	}
 
 	entry := render.EntryJSON{}
-	entry.Entry = tablemodule.GetEntryTyped(id)
+	// todo what if you are not authorised?
+	entry.Entry = tablemodule.GetEntryTyped(device, id)
 	respond.Render(w, http.StatusOK, entry)
 }
 

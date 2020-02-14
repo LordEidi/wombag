@@ -32,6 +32,7 @@ package cmd
 import (
 	"fmt"
 	"strconv"
+	"swordlord.com/wombag/model"
 	"swordlord.com/wombag/tablemodule"
 
 	"github.com/spf13/cobra"
@@ -41,36 +42,40 @@ import (
 var entryCmd = &cobra.Command{
 	Use:   "entry",
 	Short: "With the entry command you can add, change and manage your entries.",
-	Long: `With the entry command you can add, change and manage your entries.`,
-	RunE: nil,
+	Long:  `With the entry command you can add, change and manage your entries.`,
+	RunE:  nil,
 }
 
 var entryListCmd = &cobra.Command{
-	Use:   "list",
-	Short: "List all entries (without details).",
-	Long: `List all entries (without details).`,
-	RunE: ListEntry,
+	Use:   "list [user]",
+	Short: "List all entries (without details, filter for optional user).",
+	Long:  `List all entries (without details, filter for optional user).`,
+	RunE:  ListEntry,
 }
 
 var entryAddCmd = &cobra.Command{
-	Use:   "add [url]",
-	Short: "Add a new entry. Wombag will instantly get details from the given domain.",
-	Long: `Add a new entry. Wombag will instantly get details from the given domain.`,
-	Args: cobra.ExactArgs(1),
-	RunE: AddEntry,
+	Use:   "add [user] [url]",
+	Short: "Add a new entry. Wombag will instantly get details from the given URL.",
+	Long:  `Add a new entry. Wombag will instantly get details from the given URL and store the entry to the given users first device.`,
+	Args:  cobra.ExactArgs(2),
+	RunE:  AddEntry,
 }
 
 var entryDeleteCmd = &cobra.Command{
 	Use:   "delete [entry]",
 	Short: "Deletes an entry.",
-	Long: `Deletes an entry.`,
-	Args: cobra.ExactArgs(1),
-	RunE: DeleteEntry,
+	Long:  `Deletes an entry.`,
+	Args:  cobra.ExactArgs(1),
+	RunE:  DeleteEntry,
 }
 
 func ListEntry(cmd *cobra.Command, args []string) error {
 
-	tablemodule.ListEntries()
+	// todo if user is empty, run as admin and show all. if given, filter for that user
+
+	adminDevice := model.GetAdminDevice()
+
+	tablemodule.ListEntries(adminDevice)
 
 	return nil
 }
@@ -81,6 +86,7 @@ func AddEntry(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("command 'add' needs an URL")
 	}
 
+	// todo add entry for that user
 	tablemodule.AddEntry(args[0])
 
 	return nil
@@ -101,7 +107,6 @@ func DeleteEntry(cmd *cobra.Command, args []string) error {
 
 	return nil
 }
-
 
 func init() {
 	RootCmd.AddCommand(entryCmd)

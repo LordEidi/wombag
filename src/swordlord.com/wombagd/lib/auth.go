@@ -1,4 +1,5 @@
 package lib
+
 /*-----------------------------------------------------------------------------
  **
  ** - Wombag -
@@ -37,14 +38,13 @@ import (
 )
 
 const AuthIsAuthenticated = "isauthenticated"
-const AuthUser = "username"
-
+const AuthDevice = "authenticated_device"
 
 // Middleware to check for Bearer Header
 func OAuthMiddleware(rw http.ResponseWriter, req *http.Request, next http.HandlerFunc) {
 
 	// this is a bit of a hack, since the mux did not behave as expected...
-	if !strings.HasPrefix(req.URL.Path, "/api"){
+	if !strings.HasPrefix(req.URL.Path, "/api") {
 
 		next(rw, req)
 		return
@@ -53,14 +53,14 @@ func OAuthMiddleware(rw http.ResponseWriter, req *http.Request, next http.Handle
 	authHeader := req.Header.Get("Authorization")
 	if authHeader == "" {
 
-		log.Printf("There is neither an authorization header nor an access token in the URL.\n" )
+		log.Printf("There is neither an authorization header nor an access token in the URL.\n")
 		http.Error(rw, "Access not authorised", 401)
 		return
 	}
 
 	ahElements := strings.Split(authHeader, " ")
 	if len(ahElements) != 2 {
-		log.Printf("There is an authorization header but with wrong format: %s.\n", authHeader )
+		log.Printf("There is an authorization header but with wrong format: %s.\n", authHeader)
 		http.Error(rw, "Access not authorised", 401)
 		return
 	}
@@ -71,7 +71,7 @@ func OAuthMiddleware(rw http.ResponseWriter, req *http.Request, next http.Handle
 
 	} else {
 
-		log.Printf("There is an authorization header but with wrong format: %s.\n", authHeader )
+		log.Printf("There is an authorization header but with wrong format: %s.\n", authHeader)
 		http.Error(rw, "Access not authorised", 401)
 	}
 }
@@ -84,13 +84,13 @@ func validateOAuthToken(accToken string, rw http.ResponseWriter, req *http.Reque
 
 		ctx := req.Context()
 		ctx = context.WithValue(ctx, AuthIsAuthenticated, true)
-		ctx = context.WithValue(ctx, AuthUser, device.User)
+		ctx = context.WithValue(ctx, AuthDevice, device)
 
 		// we need to forward the context
 		next(rw, req.WithContext(ctx))
 	} else {
 
-		log.Printf("Wrong AccessToken. Access denied.\n" )
+		log.Printf("Wrong AccessToken. Access denied.\n")
 		http.Error(rw, "Access not authorised", 401)
 	}
 }

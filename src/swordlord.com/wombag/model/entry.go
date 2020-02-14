@@ -39,11 +39,12 @@ import (
 
 // TODO: Add CrtUsr and UpdUsr
 type Entry struct {
-	EntryId        uint `gorm:"primary_key"`
-	URL            string
+	EntryId        uint   `gorm:"primary_key"`
+	Owner          string `sql:"NOT NULL;DEFAULT:admin;"`
+	URL            string `sql:"NOT NULL;"`
 	PreviewPic     string
 	Domain         string
-	Title          string
+	Title          string `sql:"NOT NULL;"`
 	Content        string `sql:"type:blob"`
 	Language       string
 	MimeType       string
@@ -53,7 +54,9 @@ type Entry struct {
 	Starred        bool      `sql:"NOT NULL;DEFAULT:false"`
 	Archived       bool      `sql:"NOT NULL;DEFAULT:false"`
 	CrtDat         time.Time `sql:"DEFAULT:current_timestamp"`
+	CrtUsr         string    `sql:"NOT NULL;DEFAULT:admin"`
 	UpdDat         time.Time `sql:"DEFAULT:current_timestamp"`
+	UpdUsr         string
 }
 
 func (m *Entry) BeforeUpdate(scope *gorm.Scope) (err error) {

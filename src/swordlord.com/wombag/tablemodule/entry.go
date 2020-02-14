@@ -35,6 +35,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"swordlord.com/wombag"
 	"swordlord.com/wombag/model"
@@ -57,6 +58,8 @@ type Filter struct {
 	Starred int    `form:"starred" json:"starred"` // 1 or 0 	entry already starred
 	Archive int    `form:"archive" json:"archive"` // 1 or 0 	entry already archived
 
+	Owner string `form:"owner" json:"owner"` // user id
+
 	Sort    string `form:"sort" json:"sort"`       // created or updated, default created  sort entries by date.
 	Order   string `form:"order" json:"order"`     // asc, desc, default desc 	order of sort.
 	Page    int    `form:"page" json:"page"`       // 1, what page you want
@@ -64,7 +67,7 @@ type Filter struct {
 	Since   int    `form:"since" json:"since"`     // default 0, The timestamp since when you want entries updated.
 }
 
-func GetEntryTyped(entryId int) model.Entry {
+func GetEntryTyped(device model.Device, entryId int) model.Entry {
 
 	var entry model.Entry
 
@@ -81,7 +84,7 @@ func GetEntryTyped(entryId int) model.Entry {
 	return entry
 }
 
-func GetEntriesTyped(filter *Filter) []model.Entry {
+func GetEntriesTyped(device model.Device, filter *Filter) []model.Entry {
 
 	var rows []model.Entry
 
@@ -126,11 +129,11 @@ func GetEntriesTyped(filter *Filter) []model.Entry {
 	return rows
 }
 
-func GetEntries(withDetails bool) [][]string {
+func GetEntries(device model.Device, withDetails bool) [][]string {
 
 	filter := NewFilter()
 
-	rows := GetEntriesTyped(&filter)
+	rows := GetEntriesTyped(device, &filter)
 
 	var entries [][]string
 
@@ -148,16 +151,16 @@ func GetEntries(withDetails bool) [][]string {
 	return entries
 }
 
-func ListEntries() {
+func ListEntries(device model.Device) {
 
-	entries := GetEntries(false)
+	entries := GetEntries(device, false)
 
 	wombag.WriteTable([]string{"Title", "CrtDat", "UpdDat"}, entries)
 }
 
 func ExportEntries(file *os.File, ttl int) {
 
-	log.Fatal("ExportEntries not implemented yet")
+	log.Println("ExportEntries not implemented yet")
 	/*
 		entries := getEntries(false)
 
@@ -168,53 +171,97 @@ func ExportEntries(file *os.File, ttl int) {
 	*/
 }
 
-func AddEntry(Url string) (model.Entry, error) {
+func AddEntry(device model.Device, Url string) (model.Entry, error) {
 
-	response, err := http.Get(Url)
+	url, err := url.Parse(Url)
 	if err != nil {
-		log.Fatal(err)
-		return model.Entry{}, err
-	}
-	defer response.Body.Close()
-
-	content := ""
-	title := ""
-	//domain := response.Header.Get()
-
-	if response.StatusCode == http.StatusOK {
-
-		bodyBytes, err2 := ioutil.ReadAll(response.Body)
-		if err2 != nil {
-			log.Fatal(err2)
-		}
-		bodyString := string(bodyBytes)
-
-		doc, err := readability.NewDocument(bodyString)
-		if err != nil {
-			log.Fatal(err)
-		}
-
-		content = doc.Content()
-		title = doc.Title
+		log.Println(err)
 	}
 
 	db := wombag.GetDB()
 
-	entry := model.Entry{URL: Url, Content: content, Title: title}
+	content := ""
+	title := ""
+	domain := url.Host
+
+	crtUsr := device.UserName + "." + device.Id
+
+	entry := model.Entry{
+		URL:     url.String(),
+		Content: content,
+		Title:   title,
+		Owner:   device.UserName,
+		CrtUsr:  crtUsr,
+		Domain:  domain}
 	retDB := db.Create(&entry)
 
 	if retDB.Error != nil {
 		log.Printf("Error with Entry %q: %s\n", Url, retDB.Error)
-		log.Fatal(retDB.Error)
 		return model.Entry{}, retDB.Error
 	}
 
 	fmt.Printf("Entry %s added.\n", Url)
 
+	// TODO get content asynchronously
+	go updateContentOnEntry(entry.EntryId, Url)
+
 	return entry, nil
 }
 
-func UpdateEntry(Id string, Starred bool, Archived bool, Title string) {
+func updateContentOnEntry(entryId uint, url string) {
+
+	response, err := http.Get(url)
+	if err != nil {
+		log.Println(err)
+
+		db := wombag.GetDB()
+
+		fields := make(map[string]interface{})
+		fields["content"] = err.Error()
+		fields["title"] = "Error when fetching website"
+
+		retDB := db.Model(&model.Entry{}).Where("entry_id=?", entryId).Updates(fields)
+
+		if retDB.Error != nil {
+			log.Printf("Error with Entry %q: %s\n", entryId, retDB.Error)
+		} else {
+			fmt.Printf("Entry %s updated with error message.\n", entryId)
+		}
+	} else {
+
+		defer response.Body.Close()
+
+		if response.StatusCode == http.StatusOK {
+
+			bodyBytes, err2 := ioutil.ReadAll(response.Body)
+			if err2 != nil {
+				log.Fatal(err2)
+			}
+			bodyString := string(bodyBytes)
+
+			doc, err := readability.NewDocument(bodyString)
+			if err != nil {
+				log.Fatal(err)
+			}
+
+			db := wombag.GetDB()
+
+			fields := make(map[string]interface{})
+			fields["content"] = doc.Content()
+			fields["title"] = doc.Title
+
+			retDB := db.Model(&model.Entry{}).Where("entry_id=?", entryId).Updates(fields)
+
+			if retDB.Error != nil {
+				log.Printf("Error with Entry %q: %s\n", entryId, retDB.Error)
+			} else {
+				fmt.Printf("Entry %s updated with Title: %s.\n", entryId, doc.Title)
+			}
+		}
+	}
+}
+
+func UpdateEntry(device model.Device, Id string, Starred bool, Archived bool, Title string) {
 
 	db := wombag.GetDB()
 
@@ -222,6 +269,7 @@ func UpdateEntry(Id string, Starred bool, Archived bool, Title string) {
 
 	fields["starred"] = Starred
 	fields["archived"] = Archived
+	fields["upd_usr"] = device.UserName + "." + device.Id
 
 	if len(Title) > 0 {
 
