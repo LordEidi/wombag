@@ -86,8 +86,10 @@ func AddEntry(cmd *cobra.Command, args []string) error {
 		return fmt.Errorf("command 'add' needs an URL")
 	}
 
+	device := model.GetAdminDevice()
+
 	// todo add entry for that user
-	tablemodule.AddEntry(args[0])
+	tablemodule.AddEntry(device, args[0])
 
 	return nil
 }
