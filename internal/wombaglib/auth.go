@@ -31,10 +31,12 @@ package wombaglib
 -----------------------------------------------------------------------------*/
 import (
 	"context"
+	"github.com/sirupsen/logrus"
 	"log"
 	"net/http"
 	"strings"
 	"wombag/internal/wombaglib/tablemodule"
+	"wombag/internal/wombaglib/util"
 )
 
 const AuthIsAuthenticated = "isauthenticated"
@@ -53,14 +55,20 @@ func OAuthMiddleware(rw http.ResponseWriter, req *http.Request, next http.Handle
 	authHeader := req.Header.Get("Authorization")
 	if authHeader == "" {
 
-		log.Printf("There is neither an authorization header nor an access token in the URL.\n")
+		log.Printf("There is neither an authorization header nor an access token in the URL.")
 		http.Error(rw, "Access not authorised", 401)
 		return
 	}
 
 	ahElements := strings.Split(authHeader, " ")
 	if len(ahElements) != 2 {
-		log.Printf("There is an authorization header but with wrong format: %s.\n", authHeader)
+
+		util.LogWarn("There is an authorization header but with wrong amount of elements.", nil)
+
+		if util.IsDebuggingEnabled() {
+			fields := logrus.Fields{"authHeader": authHeader}
+			util.LogDebug("There is an authorization header but with wrong amount of elements.", fields)
+		}
 		http.Error(rw, "Access not authorised", 401)
 		return
 	}
@@ -71,8 +79,14 @@ func OAuthMiddleware(rw http.ResponseWriter, req *http.Request, next http.Handle
 
 	} else {
 
-		log.Printf("There is an authorization header but with wrong format: %s.\n", authHeader)
+		util.LogWarn("There is an authorization header but with wrong format.", nil)
+
+		if util.IsDebuggingEnabled() {
+			fields := logrus.Fields{"authHeader": authHeader}
+			util.LogDebug("There is an authorization header but with wrong format.", fields)
+		}
 		http.Error(rw, "Access not authorised", 401)
+		return
 	}
 }
 
@@ -90,7 +104,8 @@ func validateOAuthToken(accToken string, rw http.ResponseWriter, req *http.Reque
 		next(rw, req.WithContext(ctx))
 	} else {
 
-		log.Printf("Wrong AccessToken. Access denied.\n")
+		fields := logrus.Fields{"rip": req.RemoteAddr, "url": req.URL}
+		util.LogWarn("Wrong AccessToken. Access denied.", fields)
 		http.Error(rw, "Access not authorised", 401)
 	}
 }

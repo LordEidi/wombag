@@ -30,7 +30,7 @@ package tablemodule
  **
 -----------------------------------------------------------------------------*/
 import (
-	"fmt"
+	"github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 	"log"
 	"wombag/internal/wombaglib/model"
@@ -51,13 +51,14 @@ func ValidateUserInDB(name, password string) bool {
 	retDB := db.Where("name = ? AND pwd = ?", name, password).First(&user)
 
 	if retDB.Error != nil {
-		log.Printf("Login of user failed %q: %s\n", name, retDB.Error)
-		log.Fatal(retDB.Error)
+		fields := logrus.Fields{"name": name, "err": retDB.Error}
+		util.LogFatal("Login of user failed.", fields)
 		return false
 	}
 
 	if retDB.RowsAffected <= 0 {
-		log.Printf("Login of user failed. User not found: %s\n", name)
+		fields := logrus.Fields{"name": name}
+		util.LogFatal("Login of user failed. User not found", fields)
 		return false
 	}
 
@@ -95,7 +96,15 @@ func AddUser(name string, password string) (model.User, error) {
 
 	pwd, err := hashPassword(password)
 	if err != nil {
-		log.Printf("Error with hashing password %q: %s\n", password, err)
+
+		fields := logrus.Fields{"err": err}
+		util.LogFatal("Error with hashing password.", fields)
+
+		if util.IsDebuggingEnabled() {
+			fields = logrus.Fields{"pwd": password}
+			util.LogDebug("Password not hashable.", fields)
+		}
+
 		return model.User{}, err
 	}
 
@@ -103,12 +112,15 @@ func AddUser(name string, password string) (model.User, error) {
 	retDB := db.Create(&user)
 
 	if retDB.Error != nil {
-		log.Printf("Error with User %q: %s\n", name, retDB.Error)
-		log.Fatal(retDB.Error)
+
+		fields := logrus.Fields{"err": retDB.Error, "user": name}
+		util.LogFatal("Error with user.", fields)
 		return model.User{}, retDB.Error
 	}
 
-	fmt.Printf("User %s added.\n", name)
+	fields := logrus.Fields{"user": name}
+	util.LogInfo("user added.", fields)
+
 	return user, nil
 }
 
@@ -125,11 +137,13 @@ func UpdateUser(name string, password string) error {
 	retDB := db.Model(&model.User{}).Where("name=?", name).Update("pwd", pwd)
 
 	if retDB.Error != nil {
-		log.Printf("Error with User %q: %s\n", name, retDB.Error)
+		fields := logrus.Fields{"err": retDB.Error, "user": name}
+		util.LogFatal("Error with user.", fields)
 		return retDB.Error
 	}
 
-	fmt.Printf("User %s updated.\n", name)
+	fields := logrus.Fields{"user": name}
+	util.LogInfo("user updated.", fields)
 
 	return nil
 }
@@ -143,20 +157,21 @@ func DeleteUser(name string) {
 	retDB := db.Where("name = ?", name).First(&user)
 
 	if retDB.Error != nil {
-		log.Printf("Error with User %q: %s\n", name, retDB.Error)
-		log.Fatal(retDB.Error)
+		fields := logrus.Fields{"err": retDB.Error, "user": name}
+		util.LogFatal("Error with user.", fields)
 		return
 	}
 
 	if retDB.RowsAffected <= 0 {
-		log.Printf("User not found: %s\n", name)
-		log.Fatal("User not found: " + name + "\n")
+		fields := logrus.Fields{"user": name}
+		util.LogFatal("User not found.", fields)
 		return
 	}
 
 	db.Delete(&user)
 
-	fmt.Printf("User %s deleted.\n", name)
+	fields := logrus.Fields{"user": name}
+	util.LogInfo("user deleted.", fields)
 }
 
 func hashPassword(pwd string) (string, error) {

@@ -1,5 +1,8 @@
 {
   "env": "dev",
+  "log": {
+    "level": "debug"
+  },
   "add_demo_users": "true",
   "www": {
     "host": "127.0.0.1",

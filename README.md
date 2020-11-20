@@ -5,7 +5,7 @@ Wombag
 
 **Wombag** (c) 2017-20 by [SwordLord - the coding crew](https://www.swordlord.com/)
 
-![Build and Package Wombag](https://github.com/LordEidi/wombag/workflows/Build%20and%20Package%20Wombag/badge.svg?branch=master)
+![Build and Package Wombag](https://github.com/LordEidi/wombag/workflows/Build%20and%20Package%20Wombag/badge.svg?branch=master) ![CodeQL Analysis](https://github.com/LordEidi/wombag/workflows/CodeQL%20Analysis/badge.svg?branch=master)
 
 ## Introduction ##
 

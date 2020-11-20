@@ -82,7 +82,12 @@ func GetStringFromConfig(key string) string {
 
 func GetLogLevel() string {
 
-	return viper.GetString("env")
+	return viper.GetString("log")
+}
+
+func IsDebuggingEnabled() bool {
+
+	return GetLogLevel() == "debug"
 }
 
 //
@@ -95,6 +100,9 @@ func WriteStandardConfig() error {
 
 var defaultConfig = []byte(`{
 	"env": "dev",
+	"log": {
+		"level": "debug"
+	},
 	"add_demo_users": "true",
 	"www": {
 		"host": "127.0.0.1",
