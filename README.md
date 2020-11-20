@@ -5,6 +5,8 @@ Wombag
 
 **Wombag** (c) 2017-20 by [SwordLord - the coding crew](https://www.swordlord.com/)
 
+![Build and Package Wombag](https://github.com/LordEidi/wombag/workflows/Build%20and%20Package%20Wombag/badge.svg?branch=master)
+
 ## Introduction ##
 
 **Wombag** is a lightweight, self-hostable read it later service, supporting the [Wallabag API](https://app.wallabag.it/api/doc).
@@ -169,7 +171,7 @@ If you know Go (or a bit of Angular for a nifty Web Frontend) and would like to 
 
 ## Dependencies ##
 
-Dependencies are a mess. See .travis.yml for details.
+Dependencies are managed in the go.mod file.
 
 ## License ##
 
