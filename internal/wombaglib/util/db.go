@@ -30,7 +30,9 @@ package util
  **
 -----------------------------------------------------------------------------*/
 import (
-	"github.com/jinzhu/gorm"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 	"log"
 	"wombag/internal/wombaglib/model"
 )
@@ -39,23 +41,27 @@ var db gorm.DB
 
 func InitDatabase() {
 
-	dialect := GetStringFromConfig("db.dialect")
+	//dialect := GetStringFromConfig("db.dialect")
 	args := GetStringFromConfig("db.args")
 
-	database, err := gorm.Open(dialect, args)
+	config := &gorm.Config{NamingStrategy: schema.NamingStrategy{TablePrefix: "", SingularTable: true}}
+	//	config.Logger
+
+	// todo make sure to support other dialects as well
+	//database, err := gorm.Open(dialect, args)
+	database, err := gorm.Open(sqlite.Open(args), config)
 	if err != nil {
 		log.Fatalf("failed to connect database, %s", err)
 		panic("failed to connect database")
 	}
 
-	gorm.DefaultCallback.Update().Register("update_upd_dat", updateCreated)
+	//gorm.DefaultCallback.Update().Register("update_upd_dat", updateCreated)
 
 	db = *database
 
 	//db.Callback().Update().Register("update_upd_dat", updateCreated)
 
-	db.SingularTable(true)
-	db.LogMode(true)
+	//	db.LogMode(true)
 
 	db.AutoMigrate(&model.User{})
 	db.AutoMigrate(&model.Device{})
@@ -64,20 +70,20 @@ func InitDatabase() {
 	db.AutoMigrate(&model.EntryTag{})
 }
 
-func updateCreated(scope *gorm.Scope) {
+/*
+func updateCreated(stx *gorm.DB) {
 
-	/*
 		log.Println("updatecreated")
 
 		if scope.HasColumn("UpdDat") {
 			scope.SetColumn("UpdDat", time.Now())
 		}
-	*/
 }
+*/
 
 func CloseDB() {
 
-	db.Close()
+	//db.Close()
 }
 
 func GetDB() *gorm.DB {
