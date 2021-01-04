@@ -31,7 +31,6 @@ package tablemodule
 -----------------------------------------------------------------------------*/
 import (
 	"fmt"
-	uuid "github.com/satori/go.uuid"
 	"log"
 	"wombag/internal/wombaglib/model"
 	"wombag/internal/wombaglib/util"
@@ -67,20 +66,24 @@ func ValidateDeviceInDB(deviceId, deviceToken string) (model.Device, error) {
 		return model.Device{}, err
 	}
 
-	u1 := uuid.NewV4()
-	device.AccessToken = u1.String()
+	// todo: if now > device.validuntil + device.upddat, then new token
+	/*
+		u1 := uuid.NewV4()
+		device.AccessToken = u1.String()
 
-	u2 := uuid.NewV4()
-	device.RefreshToken = u2.String()
+		u2 := uuid.NewV4()
+		device.RefreshToken = u2.String()
 
-	// TODO: set sensible validation time and validate it when authenticating
-	device.ValidUntil = 3600
+		// TODO: set sensible validation time and validate it when authenticating
+		device.ValidUntil = 3600
 
-	updDB := db.Save(&device)
-	if updDB.Error != nil {
-		log.Printf("Updating of AccessToken failed %q: %s\n", deviceId, retDB.Error)
-		return model.Device{}, retDB.Error
-	}
+		updDB := db.Save(&device)
+		if updDB.Error != nil {
+			log.Printf("Updating of AccessToken failed %q: %s\n", deviceId, retDB.Error)
+			return model.Device{}, retDB.Error
+		}
+	*/
+	// else, go on
 
 	return device, nil
 }
@@ -94,7 +97,7 @@ func ValidateAccessTokenInDB(accessToken string) (model.Device, error) {
 	retDB := db.Where("access_token = ?", accessToken).First(&device)
 
 	if retDB.Error != nil {
-		log.Printf("Login of device failed %s\n", retDB.Error)
+		log.Printf("Login of device failed: %s\n", retDB.Error)
 		return model.Device{}, retDB.Error
 	}
 

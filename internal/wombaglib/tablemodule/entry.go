@@ -95,7 +95,7 @@ func GetEntriesTyped(device model.Device, filter *Filter) []model.Entry {
 	if filter.Order == "desc" {
 		query = query.Order("crt_dat DESC")
 	} else {
-		query = query.Order("crt_dat")
+		query = query.Order("crt_dat ASC")
 	}
 
 	if filter.Starred >= 0 {
@@ -267,6 +267,7 @@ func UpdateEntry(device model.Device, Id string, Starred bool, Archived bool, Ti
 
 	fields := make(map[string]interface{})
 
+	// TODO fix me, will overwrite even when not actively set (bad defaults)
 	fields["starred"] = Starred
 	fields["archived"] = Archived
 	fields["upd_usr"] = device.UserName + "." + device.Id
