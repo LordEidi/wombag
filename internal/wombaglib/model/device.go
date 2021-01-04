@@ -31,7 +31,7 @@ package model
 -----------------------------------------------------------------------------*/
 
 import (
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 	"time"
 )
 
@@ -47,9 +47,9 @@ type Device struct {
 	UpdDat       time.Time `sql:"DEFAULT:current_timestamp"`
 }
 
-func (m *Device) BeforeUpdate(scope *gorm.Scope) (err error) {
+func (m *Device) BeforeUpdate(stx *gorm.DB) (err error) {
 
-	scope.SetColumn("UpdDat", time.Now())
+	m.UpdDat = time.Now()
 	return nil
 }
 

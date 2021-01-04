@@ -30,20 +30,20 @@ package model
  **
 -----------------------------------------------------------------------------*/
 import (
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 	"time"
 )
 
 type User struct {
 	Name    string `gorm:"primary_key"`
 	Pwd     string
-	Devices []Device  `gorm:"ForeignKey:Name"`
+	Devices []Device  `gorm:"ForeignKey:id"`
 	CrtDat  time.Time `sql:"DEFAULT:current_timestamp"`
 	UpdDat  time.Time `sql:"DEFAULT:current_timestamp"`
 }
 
-func (m *User) BeforeUpdate(scope *gorm.Scope) (err error) {
+func (m *User) BeforeUpdate(stx *gorm.DB) (err error) {
 
-	scope.SetColumn("UpdDat", time.Now())
+	m.UpdDat = time.Now()
 	return nil
 }

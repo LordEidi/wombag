@@ -32,7 +32,7 @@ package model
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/jinzhu/gorm"
+	"gorm.io/gorm"
 	"strings"
 	"time"
 )
@@ -59,9 +59,9 @@ type Entry struct {
 	UpdUsr         string
 }
 
-func (m *Entry) BeforeUpdate(scope *gorm.Scope) (err error) {
+func (m *Entry) BeforeUpdate(stx *gorm.DB) (err error) {
 
-	scope.SetColumn("UpdDat", time.Now())
+	m.UpdDat = time.Now()
 	return nil
 }
 
