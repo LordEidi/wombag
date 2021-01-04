@@ -30,8 +30,10 @@ package handler
  **
 -----------------------------------------------------------------------------*/
 import (
+	"encoding/json"
 	"fmt"
 	"github.com/gorilla/schema"
+	"golang.org/x/crypto/openpgp/errors"
 	"gopkg.in/go-playground/validator.v9"
 	"log"
 	"net/http"
@@ -130,11 +132,40 @@ func OnOAuth(w http.ResponseWriter, req *http.Request) {
 
 func bind(obj interface{}, req *http.Request) (e error) {
 
+	contentType := req.Header.Get("Content-Type")
+	if contentType == "application/x-www-form-urlencoded" || contentType == "" {
+
+		err := parseForm(obj, req)
+		if err != nil {
+			return err
+		}
+	} else if contentType == "application/json" {
+		// wallabag sends http params even though setting content type to application/json...
+		if req.ContentLength == 0 {
+			err := parseForm(obj, req)
+			if err != nil {
+				return err
+			}
+		} else {
+			err := json.NewDecoder(req.Body).Decode(&obj)
+			if err != nil {
+				return err
+			}
+		}
+	} else {
+		return errors.UnsupportedError("This contentType is not supported: " + contentType)
+	}
+
+	return nil
+}
+
+func parseForm(obj interface{}, req *http.Request) (e error) {
+
 	// parse the URL and form and put result in req.Form and req.PostForm
 	err := req.ParseForm()
 
 	if err != nil {
-		log.Printf("Binding: Parsing Form returned error: %s.\n", err)
+		log.Printf("Form Binding: Parsing Form returned error: %s.\n", err)
 		return err
 	}
 
@@ -147,11 +178,11 @@ func bind(obj interface{}, req *http.Request) (e error) {
 	errDec := decoder.Decode(obj, req.Form)
 
 	if errDec != nil {
-		log.Printf("Binding: Decoding Form returned error: %s.\n", err)
+		log.Printf("Form Binding: Decoding Form returned error: %s.\n", err)
 		return err
 	}
 
-	return
+	return nil
 }
 
 func isValid(s interface{}) bool {
